@@ -50,6 +50,21 @@ export default function GameOverModal({ session, marsYears, onRestart, onClose }
     }
   };
 
+  const getEncouragementMessage = () => {
+    const theme = session.theme;
+    const envScore = session.environmentScore;
+    
+    const encouragements = {
+      cute: envScore <= 20 ? "😢 아쉽습니다! 하지만 포기하지 마세요!" : "🌟 잘했어요! 더 좋은 결과를 위해 다시 도전해보세요!",
+      scary: envScore <= 20 ? "💀 파멸을 피하지 못했군요... 다시 도전해보세요!" : "👻 아직 완전한 구원은 아닙니다... 다시 시도해보세요!",
+      realistic: envScore <= 20 ? "📊 전략 재검토가 필요합니다. 다시 도전해보세요!" : "💼 더 나은 ESG 성과를 위해 다시 시도해보세요!",
+      futuristic: envScore <= 20 ? "🚀 지구 복원에 실패했습니다. 다시 도전해보세요!" : "🤖 더 나은 미래를 위해 다시 시도해보세요!",
+      dramatic: envScore <= 20 ? "⚔️ 영웅의 여정이 실패했습니다! 다시 도전해보세요!" : "🎭 더 완벽한 승리를 위해 다시 시도해보세요!"
+    };
+    
+    return encouragements[theme as keyof typeof encouragements] || encouragements.realistic;
+  };
+
   const handleShare = () => {
     const text = `ESG 환경 게임 결과:\n환경 점수: ${session.environmentScore}/100\n탄소 농도: ${session.carbonEmissions}ppm\n화성 이주까지: ${marsYears}년\n\n지구를 구하기 위해 더 나은 선택을 해보세요!`;
     
@@ -114,19 +129,28 @@ export default function GameOverModal({ session, marsYears, onRestart, onClose }
             </div>
           </div>
         </Card>
+
+        {/* Encouragement Message and Restart Button */}
+        <Card className="bg-gradient-to-r from-green-50 to-blue-50 p-6 border border-green-200 mb-4">
+          <div className="text-center">
+            <p className="text-lg font-medium text-gray-800 mb-4">
+              {getEncouragementMessage()}
+            </p>
+            <Button 
+              onClick={onRestart}
+              size="lg"
+              className="bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white px-8 py-3 text-lg font-semibold shadow-lg hover:shadow-xl transform transition-all duration-200 hover:scale-105"
+            >
+              🔄 다시 도전하기
+            </Button>
+          </div>
+        </Card>
         
-        <div className="flex space-x-4">
-          <Button 
-            onClick={onRestart}
-            className="flex-1 bg-earth-600 hover:bg-earth-700 text-white"
-          >
-            <RotateCcw className="mr-2 h-4 w-4" />
-            다시 시작
-          </Button>
+        <div className="flex justify-center">
           <Button 
             onClick={handleShare}
             variant="outline"
-            className="flex-1"
+            className="px-6"
           >
             <Share className="mr-2 h-4 w-4" />
             결과 공유
