@@ -45,16 +45,28 @@ export default function ReignsGame() {
   const [showGameOver, setShowGameOver] = useState(false);
   const [gameOverReason, setGameOverReason] = useState<string>("");
   const [swipeDirection, setSwipeDirection] = useState<'left' | 'right' | null>(null);
+  const [showRoleSelection, setShowRoleSelection] = useState(true);
+  const [selectedRole, setSelectedRole] = useState<{name: string, emoji: string, description: string} | null>(null);
+  const [cardTransition, setCardTransition] = useState<'enter' | 'exit' | null>(null);
 
   const queryClient = useQueryClient();
 
+  // Available roles for player selection
+  const availableRoles = [
+    { name: "일반 시민", emoji: "👨‍💼", description: "환경 문제에 관심 있는 평범한 시민" },
+    { name: "CEO", emoji: "👔", description: "기업을 이끄는 최고경영자" },
+    { name: "상인", emoji: "🛍️", description: "지역 상권을 책임지는 사업자" },
+    { name: "회사원", emoji: "💼", description: "대기업에서 일하는 직장인" }
+  ];
+
   // Create game session
   const createSessionMutation = useMutation({
-    mutationFn: async (): Promise<ReignsGameSession> => {
+    mutationFn: async (role?: {name: string, emoji: string, description: string}): Promise<ReignsGameSession> => {
+      const playerName = role?.name || "CEO";
       const response = await fetch('/api/reigns/sessions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ playerName: "CEO", companyName: "GreenCorp" })
+        body: JSON.stringify({ playerName, companyName: "지구" })
       });
       return response.json();
     },
@@ -77,10 +89,14 @@ export default function ReignsGame() {
     refetchInterval: false,
   });
 
-  // Set current card when we get next card
+  // Set current card when we get next card with transition
   useEffect(() => {
     if (nextCard) {
-      setCurrentCard(nextCard);
+      setCardTransition('enter');
+      setTimeout(() => {
+        setCurrentCard(nextCard);
+        setCardTransition(null);
+      }, 200);
     }
   }, [nextCard]);
 
@@ -108,32 +124,36 @@ export default function ReignsGame() {
       // Update session data
       queryClient.setQueryData(['/api/reigns/sessions', sessionId], response.session);
       
-      // Get next card after a delay
+      // Get next card after a delay with improved transition
       setTimeout(() => {
         setShowEffects(false);
+        setCardTransition('exit');
         if (!response.gameOver) {
-          refetchCard();
+          setTimeout(() => {
+            refetchCard();
+          }, 300);
         }
-      }, 2000);
+      }, 2200);
     }
   });
 
   // Initialize game
   useEffect(() => {
-    if (!sessionId) {
-      createSessionMutation.mutate();
+    if (!sessionId && !showRoleSelection) {
+      createSessionMutation.mutate(selectedRole || undefined);
     }
-  }, []);
+  }, [showRoleSelection, selectedRole]);
 
   const handleSwipe = (direction: 'left' | 'right') => {
     if (makeDecisionMutation.isPending || !currentCard) return;
     
+    setCardTransition('exit');
     setSwipeDirection(direction);
     
     setTimeout(() => {
       makeDecisionMutation.mutate({ decision: direction });
       setSwipeDirection(null);
-    }, 300);
+    }, 400);
   };
 
   const resetGame = () => {
@@ -143,7 +163,14 @@ export default function ReignsGame() {
     setLastEffects(null);
     setShowGameOver(false);
     setGameOverReason("");
-    createSessionMutation.mutate();
+    setShowRoleSelection(true);
+    setSelectedRole(null);
+    setCardTransition(null);
+  };
+
+  const handleRoleSelect = (role: {name: string, emoji: string, description: string}) => {
+    setSelectedRole(role);
+    setShowRoleSelection(false);
   };
 
   const getMeterIcon = (type: string) => {
@@ -288,12 +315,58 @@ export default function ReignsGame() {
     }
   };
 
+  // Role Selection Screen
+  if (showRoleSelection) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-900 via-purple-900 to-green-900 p-4 flex items-center justify-center relative overflow-hidden">
+        {/* Background effects */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute -top-40 -left-40 w-80 h-80 bg-blue-400/10 rounded-full animate-pulse"></div>
+          <div className="absolute top-20 -right-20 w-60 h-60 bg-purple-400/10 rounded-full animate-pulse delay-1000"></div>
+          <div className="absolute bottom-20 left-1/4 w-40 h-40 bg-green-400/10 rounded-full animate-pulse delay-500"></div>
+        </div>
+
+        <Card className="max-w-2xl w-full bg-white/95 backdrop-blur-md shadow-2xl border border-white/20 relative z-10">
+          <div className="bg-gradient-to-r from-blue-600 to-green-600 text-white p-6 rounded-t-lg text-center">
+            <div className="text-6xl mb-4">🌍</div>
+            <h1 className="text-3xl font-bold mb-2">지구를 구하는 ESG 게임</h1>
+            <p className="text-white/90 text-lg">당신의 역할을 선택하세요</p>
+          </div>
+          
+          <div className="p-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {availableRoles.map((role, index) => (
+                <Button
+                  key={index}
+                  onClick={() => handleRoleSelect(role)}
+                  className="h-auto p-6 bg-white hover:bg-gray-50 text-gray-800 border-2 border-gray-200 hover:border-blue-400 transition-all duration-300 hover:scale-105 hover:shadow-xl"
+                  variant="outline"
+                >
+                  <div className="text-center w-full">
+                    <div className="text-4xl mb-3">{role.emoji}</div>
+                    <div className="font-bold text-xl mb-2">{role.name}</div>
+                    <div className="text-sm text-gray-600">{role.description}</div>
+                  </div>
+                </Button>
+              ))}
+            </div>
+            
+            <div className="mt-8 text-center text-gray-600">
+              <p className="text-lg font-medium mb-2">🎯 목표: 2075년까지 지구 생존</p>
+              <p className="text-sm">환경, 경제, 사회, 기술의 균형을 맞춰 지구를 구하세요!</p>
+            </div>
+          </div>
+        </Card>
+      </div>
+    );
+  }
+
   if (createSessionMutation.isPending) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-blue-900 to-green-900 flex items-center justify-center">
         <div className="text-white text-center">
           <Gamepad2 className="w-16 h-16 mx-auto mb-4 animate-pulse" />
-          <h2 className="text-2xl font-bold mb-2">ESG 리더십 게임</h2>
+          <h2 className="text-2xl font-bold mb-2">ESG 게임 시작</h2>
           <p>게임을 준비하는 중...</p>
         </div>
       </div>
@@ -325,23 +398,34 @@ export default function ReignsGame() {
       </div>
 
       {/* Header with Meters - Mobile Game Style */}
-      <div className="max-w-4xl mx-auto mb-6 relative z-10">
+      <div className="max-w-6xl mx-auto mb-6 relative z-10">
         <div className="bg-gradient-to-r from-white/15 to-white/10 backdrop-blur-md rounded-xl p-5 border border-white/20 shadow-2xl">
           <div className="flex items-center justify-between mb-5">
-            <div className="text-white">
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-white to-blue-200 bg-clip-text text-transparent">
-                {safeSession.companyName}
+            <div className="text-white flex-1">
+              <h1 className="text-2xl font-bold bg-gradient-to-r from-white to-blue-200 bg-clip-text text-transparent">
+                🌍 지구 구하기 프로젝트
               </h1>
               <p className="text-white/90 text-lg font-medium">
-                🎯 {safeSession.playerName} • 📅 {safeSession.currentYear}년
+                {selectedRole?.emoji} {safeSession.playerName} • 📅 {safeSession.currentYear}년
               </p>
             </div>
-            <div className="text-right">
+            
+            {/* Polar Bear Status - Side Panel */}
+            <div className="hidden md:flex items-center mx-8">
+              <div className="scale-150">
+                <PolarBear 
+                  environmentScore={safeSession.environmentMeter} 
+                  showAnimation={showEffects && lastEffects?.environment !== 0}
+                />
+              </div>
+            </div>
+            
+            <div className="text-right flex-1">
               <Badge variant="secondary" className="bg-gradient-to-r from-blue-500/20 to-purple-500/20 text-white border border-white/30 text-lg px-4 py-2 font-bold shadow-lg">
-                🃏 카드 {safeSession.cardsPlayed}
+                🃏 {safeSession.cardsPlayed}장
               </Badge>
               <div className="text-white/70 text-sm mt-1">
-                🏆 목표: 2075년 생존
+                🏆 목표: 2075년까지 생존
               </div>
             </div>
           </div>
@@ -388,12 +472,14 @@ export default function ReignsGame() {
             ))}
           </div>
 
-          {/* Polar Bear Status */}
-          <div className="mt-4 flex justify-center">
-            <PolarBear 
-              environmentScore={safeSession.environmentMeter} 
-              showAnimation={showEffects && lastEffects?.environment !== 0}
-            />
+          {/* Mobile Polar Bear Display */}
+          <div className="mt-4 flex justify-center md:hidden">
+            <div className="scale-125">
+              <PolarBear 
+                environmentScore={safeSession.environmentMeter} 
+                showAnimation={showEffects && lastEffects?.environment !== 0}
+              />
+            </div>
           </div>
         </div>
       </div>
@@ -487,9 +573,11 @@ export default function ReignsGame() {
           ← 스와이프하여 결정하세요 →
         </div>
 
-        <Card className={`bg-white shadow-2xl transition-all duration-300 transform hover:scale-105 ${
-          swipeDirection === 'left' ? '-rotate-12 -translate-x-32 scale-95 opacity-70' : 
-          swipeDirection === 'right' ? 'rotate-12 translate-x-32 scale-95 opacity-70' : 'hover:shadow-3xl'
+        <Card className={`bg-white shadow-2xl transition-all duration-500 transform hover:scale-105 ${
+          cardTransition === 'exit' ? 'scale-75 opacity-0 -translate-y-10' :
+          cardTransition === 'enter' ? 'scale-110 opacity-90' :
+          swipeDirection === 'left' ? '-rotate-12 -translate-x-40 scale-90 opacity-60' : 
+          swipeDirection === 'right' ? 'rotate-12 translate-x-40 scale-90 opacity-60' : 'hover:shadow-3xl'
         } rounded-xl border-2 border-white/20`}>
           
           {/* Character Header */}
