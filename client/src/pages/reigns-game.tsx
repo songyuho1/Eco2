@@ -170,6 +170,124 @@ export default function ReignsGame() {
     return null;
   };
 
+  const getGameOverDetails = (session: ReignsGameSession) => {
+    const endYear = session.currentYear;
+    
+    if (session.environmentMeter <= 0) {
+      return {
+        title: "🌍 지구 환경 완전 붕괴!",
+        subtitle: "화성 이주 불가피한 상황",
+        consequences: [
+          "🌊 해수면 7미터 상승으로 해안 도시 80% 침수",
+          "🔥 평균기온 4.5°C 상승으로 생존 불가능 지역 확산", 
+          "☠️ 오존층 완전 파괴로 자외선 피해 극심",
+          "🏜️ 사막화 진행으로 농업지역 85% 소실",
+          "🐻‍❄️ 북극 빙하 완전 소실로 생태계 붕괴"
+        ],
+        finalMessage: "지구가 더 이상 인류 생존이 불가능해져 화성 이주 계획을 시작해야 합니다!",
+        color: "from-red-500 to-orange-500"
+      };
+    } else if (session.economyMeter <= 0) {
+      return {
+        title: "💸 글로벌 경제 시스템 완전 붕괴!",
+        subtitle: "문명 사회의 종말",
+        consequences: [
+          "📉 세계 GDP 95% 급락으로 경제 활동 정지",
+          "🏭 모든 제조업과 서비스업 완전 중단",
+          "💼 전 세계 실업률 90% 돌파",
+          "🍞 기본 생필품 생산 및 유통 시스템 마비",
+          "💰 화폐 시스템 붕괴로 물물교환 사회 복귀"
+        ],
+        finalMessage: "극단적 환경 정책으로 경제가 붕괴하여 원시 사회로 역행하게 되었습니다!",
+        color: "from-purple-500 to-pink-500"
+      };
+    } else if (session.socialMeter <= 0) {
+      return {
+        title: "👥 사회 질서 완전 붕괴!",
+        subtitle: "인류 분열과 내전 상태",
+        consequences: [
+          "⚔️ 계층 간 대규모 내전 및 폭동 발발",
+          "🏃‍♂️ 전 세계 10억 명 이상 난민 발생",
+          "🚫 정부 기능 완전 마비, 무정부 상태",
+          "🔥 주요 도시들 폭동과 약탈로 파괴",
+          "🏕️ 인류가 소규모 부족 단위로 분열"
+        ],
+        finalMessage: "사회적 갈등이 극에 달해 현대 문명이 완전히 붕괴되었습니다!",
+        color: "from-gray-600 to-gray-800"
+      };
+    } else if (session.technologyMeter <= 0) {
+      return {
+        title: "🔧 기술 문명 완전 퇴보!",
+        subtitle: "19세기 수준으로 문명 후퇴",
+        consequences: [
+          "💡 전력 공급 시스템 완전 중단",
+          "📱 모든 통신망과 인터넷 서비스 두절",
+          "🏥 현대 의료 시스템 완전 마비",
+          "🚗 모든 현대 교통수단 사용 불가",
+          "🏭 산업 기반 시설 전면 가동 중단"
+        ],
+        finalMessage: "기술 발전을 거부한 결과 현대 문명을 유지할 수 없게 되었습니다!",
+        color: "from-brown-500 to-yellow-600"
+      };
+    } else if (session.environmentMeter >= 100) {
+      return {
+        title: "🌱 극단적 환경주의로 경제 붕괴!",
+        subtitle: "과도한 환경 보호의 역설",
+        consequences: [
+          "🏭 모든 제조업체 강제 폐쇄",
+          "✈️ 항공 및 자동차 사용 전면 금지",
+          "🔌 전력 사용량 90% 강제 삭감",
+          "🍎 산업적 농업 금지로 식량 부족 심각",
+          "❄️ 난방 사용 제한으로 동사자 급증"
+        ],
+        finalMessage: "극단적 환경 보호로 인해 인간 생활이 불가능해졌습니다!",
+        color: "from-green-600 to-emerald-700"
+      };
+    } else if (session.economyMeter >= 100) {
+      return {
+        title: "💰 무분별한 개발로 지구 황폐화!",
+        subtitle: "화성 이주 프로젝트 시작",
+        consequences: [
+          "🏭 탄소 배출량 850ppm 돌파로 기후 임계점 초과",
+          "☁️ 초미세먼지로 대기가 독가스 상태",
+          "🐠 바다 산성화로 해양 생물 99% 멸종",
+          "🌳 열대우림 완전 소실로 산소 생산 중단",
+          "☢️ 산업 폐기물로 토양과 지하수 완전 오염"
+        ],
+        finalMessage: "환경을 무시한 개발로 지구가 생존 불가능해져 화성으로 떠나야 합니다!",
+        color: "from-red-600 to-black"
+      };
+    } else if (session.socialMeter >= 100) {
+      return {
+        title: "👨‍👩‍👧‍👦 과도한 복지로 국가 파산!",
+        subtitle: "재정 시스템 완전 붕괴",
+        consequences: [
+          "💸 국가 부채 GDP 대비 800% 돌파",
+          "🏦 모든 은행과 금융기관 파산",
+          "💰 하이퍼인플레이션으로 화폐 가치 0",
+          "🍞 공공 서비스 제공 완전 불가능",
+          "🏛️ 정부 기능 정지로 사회 무너짐"
+        ],
+        finalMessage: "무분별한 복지 정책으로 국가 재정이 완전히 파산했습니다!",
+        color: "from-blue-600 to-indigo-700"
+      };
+    } else {
+      return {
+        title: "🚀 급진적 기술로 인간성 상실!",
+        subtitle: "기술이 인간을 지배하는 세상",
+        consequences: [
+          "🤖 AI가 인간 일자리 95% 완전 대체",
+          "⚡ 기술 격차로 인한 극심한 계층 분화",
+          "🧠 인간-기계 융합으로 정체성 혼란",
+          "🌐 사이버 범죄와 해킹이 일상화",
+          "👁️ 완전 감시 사회로 자유 완전 상실"
+        ],
+        finalMessage: "급진적 기술 발전으로 인간다운 삶이 불가능해졌습니다!",
+        color: "from-cyan-500 to-blue-600"
+      };
+    }
+  };
+
   if (createSessionMutation.isPending) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-blue-900 to-green-900 flex items-center justify-center">
@@ -198,18 +316,34 @@ export default function ReignsGame() {
   const safeSession = session as ReignsGameSession;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-900 to-green-900 p-4">
-      {/* Header with Meters */}
-      <div className="max-w-4xl mx-auto mb-6">
-        <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
-          <div className="flex items-center justify-between mb-4">
+    <div className="min-h-screen bg-gradient-to-br from-blue-900 via-purple-900 to-green-900 p-4 relative overflow-hidden">
+      {/* Floating background elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-40 -left-40 w-80 h-80 bg-blue-400/10 rounded-full animate-pulse"></div>
+        <div className="absolute top-20 -right-20 w-60 h-60 bg-purple-400/10 rounded-full animate-pulse delay-1000"></div>
+        <div className="absolute bottom-20 left-1/4 w-40 h-40 bg-green-400/10 rounded-full animate-pulse delay-500"></div>
+      </div>
+
+      {/* Header with Meters - Mobile Game Style */}
+      <div className="max-w-4xl mx-auto mb-6 relative z-10">
+        <div className="bg-gradient-to-r from-white/15 to-white/10 backdrop-blur-md rounded-xl p-5 border border-white/20 shadow-2xl">
+          <div className="flex items-center justify-between mb-5">
             <div className="text-white">
-              <h1 className="text-2xl font-bold">{safeSession.companyName}</h1>
-              <p className="text-white/80">{safeSession.playerName} • {safeSession.currentYear}년</p>
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-white to-blue-200 bg-clip-text text-transparent">
+                {safeSession.companyName}
+              </h1>
+              <p className="text-white/90 text-lg font-medium">
+                🎯 {safeSession.playerName} • 📅 {safeSession.currentYear}년
+              </p>
             </div>
-            <Badge variant="secondary" className="bg-white/20 text-white">
-              카드 {safeSession.cardsPlayed}개 처리
-            </Badge>
+            <div className="text-right">
+              <Badge variant="secondary" className="bg-gradient-to-r from-blue-500/20 to-purple-500/20 text-white border border-white/30 text-lg px-4 py-2 font-bold shadow-lg">
+                🃏 카드 {safeSession.cardsPlayed}
+              </Badge>
+              <div className="text-white/70 text-sm mt-1">
+                🏆 목표: 2075년 생존
+              </div>
+            </div>
           </div>
 
           {/* Four Meters */}
@@ -264,49 +398,99 @@ export default function ReignsGame() {
         </div>
       </div>
 
-      {/* Game Over Modal */}
+      {/* Game Over Modal - Mobile Game Style */}
       {showGameOver && (
-        <div className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50">
-          <Card className="max-w-2xl w-full p-6 bg-white">
-            <div className="text-center">
-              <AlertTriangle className="w-16 h-16 mx-auto mb-4 text-red-500" />
-              <h2 className="text-3xl font-bold mb-4">게임 종료!</h2>
-              <p className="text-lg mb-6 text-gray-700">{gameOverReason}</p>
-              
-              <div className="grid grid-cols-2 gap-4 mb-6">
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-blue-600">{safeSession.currentYear}</div>
-                  <div className="text-sm text-gray-600">도달 연도</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-green-600">{safeSession.cardsPlayed}</div>
-                  <div className="text-sm text-gray-600">처리한 결정</div>
-                </div>
-              </div>
+        <div className="fixed inset-0 bg-black/90 flex items-center justify-center p-4 z-50">
+          <Card className="max-w-2xl w-full max-h-[90vh] overflow-auto bg-white shadow-2xl">
+            {(() => {
+              const gameOverDetails = getGameOverDetails(safeSession);
+              return (
+                <div>
+                  {/* Header with gradient background */}
+                  <div className={`bg-gradient-to-r ${gameOverDetails.color} text-white p-6 rounded-t-lg`}>
+                    <div className="text-center">
+                      <div className="text-6xl mb-3">💥</div>
+                      <h2 className="text-2xl md:text-3xl font-bold mb-2">{gameOverDetails.title}</h2>
+                      <p className="text-white/90 text-lg">{gameOverDetails.subtitle}</p>
+                    </div>
+                  </div>
 
-              <div className="bg-gradient-to-r from-green-50 to-blue-50 p-6 rounded-lg mb-6">
-                <p className="text-lg font-medium text-gray-800 mb-4">
-                  🌱 ESG는 균형이 핵심입니다! 다시 도전해보세요!
-                </p>
-                <Button 
-                  onClick={resetGame}
-                  size="lg"
-                  className="bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white px-8 py-3 text-lg font-semibold shadow-lg hover:shadow-xl transform transition-all duration-200 hover:scale-105"
-                >
-                  🔄 다시 도전하기
-                </Button>
-              </div>
-            </div>
+                  {/* Stats Section */}
+                  <div className="p-6 bg-gray-50">
+                    <div className="grid grid-cols-3 gap-4 mb-6">
+                      <div className="text-center bg-white p-3 rounded-lg shadow">
+                        <div className="text-2xl font-bold text-red-600">{safeSession.currentYear}</div>
+                        <div className="text-xs text-gray-600">종료 연도</div>
+                      </div>
+                      <div className="text-center bg-white p-3 rounded-lg shadow">
+                        <div className="text-2xl font-bold text-blue-600">{safeSession.cardsPlayed}</div>
+                        <div className="text-xs text-gray-600">처리 카드</div>
+                      </div>
+                      <div className="text-center bg-white p-3 rounded-lg shadow">
+                        <div className="text-2xl font-bold text-purple-600">{2075 - safeSession.currentYear}</div>
+                        <div className="text-xs text-gray-600">생존 실패</div>
+                      </div>
+                    </div>
+
+                    {/* Environmental Consequences */}
+                    <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-6">
+                      <h3 className="text-lg font-bold text-red-800 mb-3">🚨 심각한 결과들</h3>
+                      <div className="space-y-2">
+                        {gameOverDetails.consequences.map((consequence, index) => (
+                          <div key={index} className="text-sm text-red-700 flex items-start gap-2">
+                            <span className="font-medium">•</span>
+                            <span>{consequence}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Final Message */}
+                    <div className="bg-yellow-50 border border-yellow-300 rounded-lg p-4 mb-6">
+                      <div className="text-center">
+                        <div className="text-3xl mb-2">⚠️</div>
+                        <p className="text-yellow-800 font-medium leading-relaxed">
+                          {gameOverDetails.finalMessage}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Encouragement & Retry */}
+                    <div className="text-center">
+                      <div className="bg-gradient-to-r from-green-50 to-blue-50 p-6 rounded-lg mb-4">
+                        <p className="text-lg font-medium text-gray-800 mb-4">
+                          🌱 ESG 균형 관리는 어려운 도전입니다!<br/>
+                          지구를 구하기 위해 다시 도전해보세요!
+                        </p>
+                      </div>
+                      
+                      <Button 
+                        onClick={resetGame}
+                        size="lg"
+                        className="bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white px-8 py-4 text-xl font-bold shadow-xl hover:shadow-2xl transform transition-all duration-300 hover:scale-110 rounded-full"
+                      >
+                        🚀 지구를 다시 구해보기
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              );
+            })()}
           </Card>
         </div>
       )}
 
-      {/* Main Card Interface */}
-      <div className="max-w-2xl mx-auto">
-        <Card className={`bg-white shadow-2xl transition-transform duration-300 ${
-          swipeDirection === 'left' ? '-rotate-12 -translate-x-32' : 
-          swipeDirection === 'right' ? 'rotate-12 translate-x-32' : ''
-        }`}>
+      {/* Main Card Interface - Mobile Game Style */}
+      <div className="max-w-2xl mx-auto relative">
+        {/* Swipe Hint Animation */}
+        <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 text-white/60 text-sm font-medium animate-pulse">
+          ← 스와이프하여 결정하세요 →
+        </div>
+
+        <Card className={`bg-white shadow-2xl transition-all duration-300 transform hover:scale-105 ${
+          swipeDirection === 'left' ? '-rotate-12 -translate-x-32 scale-95 opacity-70' : 
+          swipeDirection === 'right' ? 'rotate-12 translate-x-32 scale-95 opacity-70' : 'hover:shadow-3xl'
+        } rounded-xl border-2 border-white/20`}>
           
           {/* Character Header */}
           <div className="bg-gradient-to-r from-blue-500 to-purple-500 text-white p-4 rounded-t-lg">
@@ -341,15 +525,16 @@ export default function ReignsGame() {
             )}
           </div>
 
-          {/* Decision Options */}
+          {/* Decision Options - Mobile Game Style */}
           <div className="p-6 pt-0">
-            <div className="grid grid-cols-2 gap-4">
-              {/* Left Choice */}
-              <div className="relative">
+            <div className="grid grid-cols-2 gap-6">
+              {/* Left Choice - Reject/Conservative */}
+              <div className="relative group">
+                <div className="absolute inset-0 bg-gradient-to-r from-red-500 to-orange-500 rounded-lg blur opacity-50 group-hover:opacity-75 transition-opacity"></div>
                 <Button
                   onClick={() => handleSwipe('left')}
                   disabled={makeDecisionMutation.isPending}
-                  className="w-full h-auto p-4 bg-red-500 hover:bg-red-600 text-white flex-col items-start transition-all duration-200 hover:scale-105"
+                  className="relative w-full h-auto p-5 bg-gradient-to-br from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white flex-col items-start transition-all duration-300 hover:scale-110 shadow-xl hover:shadow-2xl rounded-xl border-2 border-white/20"
                 >
                   <div className="flex items-center gap-2 mb-2">
                     <ChevronLeft className="w-5 h-5" />
@@ -402,12 +587,13 @@ export default function ReignsGame() {
                 </Button>
               </div>
 
-              {/* Right Choice */}
-              <div className="relative">
+              {/* Right Choice - Accept/Progressive */}
+              <div className="relative group">
+                <div className="absolute inset-0 bg-gradient-to-r from-green-500 to-blue-500 rounded-lg blur opacity-50 group-hover:opacity-75 transition-opacity"></div>
                 <Button
                   onClick={() => handleSwipe('right')}
                   disabled={makeDecisionMutation.isPending}
-                  className="w-full h-auto p-4 bg-green-500 hover:bg-green-600 text-white flex-col items-start transition-all duration-200 hover:scale-105"
+                  className="relative w-full h-auto p-5 bg-gradient-to-br from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white flex-col items-start transition-all duration-300 hover:scale-110 shadow-xl hover:shadow-2xl rounded-xl border-2 border-white/20"
                 >
                   <div className="flex items-center gap-2 mb-2">
                     <span className="font-bold">수락/진보적 →</span>
