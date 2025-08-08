@@ -4,12 +4,12 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/not-found";
-import Game from "@/pages/game";
+import ReignsGame from "@/pages/reigns-game";
 
 function Router() {
   return (
     <Switch>
-      <Route path="/" component={Game} />
+      <Route path="/" component={ReignsGame} />
       <Route component={NotFound} />
     </Switch>
   );

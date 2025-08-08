@@ -1,7 +1,9 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertGameSessionSchema, insertGameSessionChoiceSchema } from "@shared/schema";
+// Legacy imports (old schema) - keeping for backward compatibility
+// import { insertGameSessionSchema, insertGameSessionChoiceSchema } from "@shared/schema";
+import reignsRoutes from "./reigns-routes";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   
@@ -16,11 +18,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Create new game session
+  // Create new game session (legacy - keeping for compatibility)
   app.post("/api/sessions", async (req, res) => {
     try {
-      const validatedData = insertGameSessionSchema.parse(req.body);
-      const session = await storage.createSession(validatedData);
+      // Skip validation for now since we're transitioning to new schema
+      const session = await storage.createSession(req.body);
       res.json(session);
     } catch (error) {
       res.status(400).json({ message: "Invalid session data" });
@@ -64,13 +66,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
         ...req.body,
         sessionId
       };
-      const validatedData = insertGameSessionChoiceSchema.parse(choiceData);
+      // Skip validation for now since we're transitioning to new schema
+      const validatedData = choiceData;
       const sessionChoice = await storage.addSessionChoice(validatedData);
       res.json(sessionChoice);
     } catch (error) {
       res.status(400).json({ message: "Invalid choice data" });
     }
   });
+
+  // New Reigns-style ESG game routes
+  app.post("/api/reigns/sessions", reignsRoutes.createSession.bind(reignsRoutes));
+  app.get("/api/reigns/sessions/:id", reignsRoutes.getSession.bind(reignsRoutes));
+  app.get("/api/reigns/sessions/:id/next-card", reignsRoutes.getNextCard.bind(reignsRoutes));
+  app.post("/api/reigns/sessions/:id/decisions/:cardId", reignsRoutes.makeDecision.bind(reignsRoutes));
+  app.get("/api/reigns/sessions/:id/history", reignsRoutes.getGameHistory.bind(reignsRoutes));
+  app.get("/api/reigns/climate-data", reignsRoutes.getClimateData.bind(reignsRoutes));
+  app.get("/api/reigns/predictions", reignsRoutes.getFuturePredictions.bind(reignsRoutes));
+  app.get("/api/reigns/cards", reignsRoutes.getAllCards.bind(reignsRoutes));
+  app.delete("/api/reigns/sessions/:id", reignsRoutes.deleteSession.bind(reignsRoutes));
 
   const httpServer = createServer(app);
   return httpServer;
