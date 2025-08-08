@@ -20,6 +20,7 @@ import {
   ChevronRight,
   Gamepad2
 } from "lucide-react";
+import PolarBear from "@/components/polar-bear";
 import type { ReignsGameSession, DecisionCard } from "@shared/schema";
 
 interface GameEffects {
@@ -219,14 +220,14 @@ export default function ReignsGame() {
               { key: 'social', label: '사회', value: safeSession.socialMeter },
               { key: 'technology', label: '기술', value: safeSession.technologyMeter },
             ].map((meter) => (
-              <div key={meter.key} className="bg-white/20 rounded-lg p-3">
+              <div key={meter.key} className="bg-white/20 rounded-lg p-3 relative">
                 <div className="flex items-center gap-2 mb-2">
                   {getMeterIcon(meter.key)}
                   <span className="text-white font-medium">{meter.label}</span>
                   {lastEffects && showEffects && (
-                    <div className="flex items-center gap-1">
+                    <div className="flex items-center gap-1 animate-pulse">
                       {getEffectIcon(lastEffects[meter.key as keyof GameEffects])}
-                      <span className={`text-sm font-bold ${
+                      <span className={`text-sm font-bold animate-bounce ${
                         lastEffects[meter.key as keyof GameEffects] > 0 ? 'text-green-300' : 'text-red-300'
                       }`}>
                         {lastEffects[meter.key as keyof GameEffects] > 0 ? '+' : ''}
@@ -240,8 +241,25 @@ export default function ReignsGame() {
                   className={`h-3 ${getMeterColor(meter.value)}`}
                 />
                 <div className="text-white/80 text-sm mt-1">{meter.value}/100</div>
+                
+                {/* Score change animation */}
+                {lastEffects && showEffects && lastEffects[meter.key as keyof GameEffects] !== 0 && (
+                  <div className={`absolute -top-2 right-0 text-2xl font-bold animate-bounce ${
+                    lastEffects[meter.key as keyof GameEffects] > 0 ? 'text-green-400' : 'text-red-400'
+                  }`}>
+                    {lastEffects[meter.key as keyof GameEffects] > 0 ? '↗️' : '↘️'}
+                  </div>
+                )}
               </div>
             ))}
+          </div>
+
+          {/* Polar Bear Status */}
+          <div className="mt-4 flex justify-center">
+            <PolarBear 
+              environmentScore={safeSession.environmentMeter} 
+              showAnimation={showEffects && lastEffects?.environment !== 0}
+            />
           </div>
         </div>
       </div>
@@ -327,36 +345,120 @@ export default function ReignsGame() {
           <div className="p-6 pt-0">
             <div className="grid grid-cols-2 gap-4">
               {/* Left Choice */}
-              <Button
-                onClick={() => handleSwipe('left')}
-                disabled={makeDecisionMutation.isPending}
-                className="h-auto p-4 bg-red-500 hover:bg-red-600 text-white flex-col items-start transition-all duration-200 hover:scale-105"
-              >
-                <div className="flex items-center gap-2 mb-2">
-                  <ChevronLeft className="w-5 h-5" />
-                  <span className="font-bold">← 거절/보수적</span>
-                </div>
-                <div className="text-left">
-                  <div className="font-semibold mb-1">{currentCard.leftOptionTitle}</div>
-                  <div className="text-xs text-red-100">{currentCard.leftOptionDescription}</div>
-                </div>
-              </Button>
+              <div className="relative">
+                <Button
+                  onClick={() => handleSwipe('left')}
+                  disabled={makeDecisionMutation.isPending}
+                  className="w-full h-auto p-4 bg-red-500 hover:bg-red-600 text-white flex-col items-start transition-all duration-200 hover:scale-105"
+                >
+                  <div className="flex items-center gap-2 mb-2">
+                    <ChevronLeft className="w-5 h-5" />
+                    <span className="font-bold">← 거절/보수적</span>
+                  </div>
+                  <div className="text-left w-full">
+                    <div className="font-semibold mb-1">{currentCard.leftOptionTitle}</div>
+                    <div className="text-xs text-red-100 mb-2">{currentCard.leftOptionDescription}</div>
+                    
+                    {/* Score Preview */}
+                    <div className="grid grid-cols-2 gap-1 text-xs">
+                      {currentCard.leftEffects && typeof currentCard.leftEffects === 'object' && (
+                        <>
+                          {(currentCard.leftEffects as any).environment !== 0 && (
+                            <div className={`flex items-center gap-1 ${
+                              (currentCard.leftEffects as any).environment > 0 ? 'text-green-200' : 'text-red-200'
+                            }`}>
+                              <Leaf className="w-3 h-3" />
+                              <span>{(currentCard.leftEffects as any).environment > 0 ? '+' : ''}{(currentCard.leftEffects as any).environment}</span>
+                            </div>
+                          )}
+                          {(currentCard.leftEffects as any).economy !== 0 && (
+                            <div className={`flex items-center gap-1 ${
+                              (currentCard.leftEffects as any).economy > 0 ? 'text-green-200' : 'text-red-200'
+                            }`}>
+                              <DollarSign className="w-3 h-3" />
+                              <span>{(currentCard.leftEffects as any).economy > 0 ? '+' : ''}{(currentCard.leftEffects as any).economy}</span>
+                            </div>
+                          )}
+                          {(currentCard.leftEffects as any).social !== 0 && (
+                            <div className={`flex items-center gap-1 ${
+                              (currentCard.leftEffects as any).social > 0 ? 'text-green-200' : 'text-red-200'
+                            }`}>
+                              <Users className="w-3 h-3" />
+                              <span>{(currentCard.leftEffects as any).social > 0 ? '+' : ''}{(currentCard.leftEffects as any).social}</span>
+                            </div>
+                          )}
+                          {(currentCard.leftEffects as any).technology !== 0 && (
+                            <div className={`flex items-center gap-1 ${
+                              (currentCard.leftEffects as any).technology > 0 ? 'text-green-200' : 'text-red-200'
+                            }`}>
+                              <Cpu className="w-3 h-3" />
+                              <span>{(currentCard.leftEffects as any).technology > 0 ? '+' : ''}{(currentCard.leftEffects as any).technology}</span>
+                            </div>
+                          )}
+                        </>
+                      )}
+                    </div>
+                  </div>
+                </Button>
+              </div>
 
               {/* Right Choice */}
-              <Button
-                onClick={() => handleSwipe('right')}
-                disabled={makeDecisionMutation.isPending}
-                className="h-auto p-4 bg-green-500 hover:bg-green-600 text-white flex-col items-start transition-all duration-200 hover:scale-105"
-              >
-                <div className="flex items-center gap-2 mb-2">
-                  <span className="font-bold">수락/진보적 →</span>
-                  <ChevronRight className="w-5 h-5" />
-                </div>
-                <div className="text-left">
-                  <div className="font-semibold mb-1">{currentCard.rightOptionTitle}</div>
-                  <div className="text-xs text-green-100">{currentCard.rightOptionDescription}</div>
-                </div>
-              </Button>
+              <div className="relative">
+                <Button
+                  onClick={() => handleSwipe('right')}
+                  disabled={makeDecisionMutation.isPending}
+                  className="w-full h-auto p-4 bg-green-500 hover:bg-green-600 text-white flex-col items-start transition-all duration-200 hover:scale-105"
+                >
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="font-bold">수락/진보적 →</span>
+                    <ChevronRight className="w-5 h-5" />
+                  </div>
+                  <div className="text-left w-full">
+                    <div className="font-semibold mb-1">{currentCard.rightOptionTitle}</div>
+                    <div className="text-xs text-green-100 mb-2">{currentCard.rightOptionDescription}</div>
+                    
+                    {/* Score Preview */}
+                    <div className="grid grid-cols-2 gap-1 text-xs">
+                      {currentCard.rightEffects && typeof currentCard.rightEffects === 'object' && (
+                        <>
+                          {(currentCard.rightEffects as any).environment !== 0 && (
+                            <div className={`flex items-center gap-1 ${
+                              (currentCard.rightEffects as any).environment > 0 ? 'text-green-200' : 'text-red-200'
+                            }`}>
+                              <Leaf className="w-3 h-3" />
+                              <span>{(currentCard.rightEffects as any).environment > 0 ? '+' : ''}{(currentCard.rightEffects as any).environment}</span>
+                            </div>
+                          )}
+                          {(currentCard.rightEffects as any).economy !== 0 && (
+                            <div className={`flex items-center gap-1 ${
+                              (currentCard.rightEffects as any).economy > 0 ? 'text-green-200' : 'text-red-200'
+                            }`}>
+                              <DollarSign className="w-3 h-3" />
+                              <span>{(currentCard.rightEffects as any).economy > 0 ? '+' : ''}{(currentCard.rightEffects as any).economy}</span>
+                            </div>
+                          )}
+                          {(currentCard.rightEffects as any).social !== 0 && (
+                            <div className={`flex items-center gap-1 ${
+                              (currentCard.rightEffects as any).social > 0 ? 'text-green-200' : 'text-red-200'
+                            }`}>
+                              <Users className="w-3 h-3" />
+                              <span>{(currentCard.rightEffects as any).social > 0 ? '+' : ''}{(currentCard.rightEffects as any).social}</span>
+                            </div>
+                          )}
+                          {(currentCard.rightEffects as any).technology !== 0 && (
+                            <div className={`flex items-center gap-1 ${
+                              (currentCard.rightEffects as any).technology > 0 ? 'text-green-200' : 'text-red-200'
+                            }`}>
+                              <Cpu className="w-3 h-3" />
+                              <span>{(currentCard.rightEffects as any).technology > 0 ? '+' : ''}{(currentCard.rightEffects as any).technology}</span>
+                            </div>
+                          )}
+                        </>
+                      )}
+                    </div>
+                  </div>
+                </Button>
+              </div>
             </div>
 
             <div className="text-center mt-4 text-gray-500 text-sm">
