@@ -1,6 +1,16 @@
 # Overview
 
-This is an ESG (Environmental, Social, Governance) educational game application built with React and Express. The application presents users with environmental decision-making scenarios across different themes (cute, scary, realistic, futuristic, dramatic) where players make choices that impact environmental scores, economic scores, and carbon emissions. The game tracks progress through 10 scenarios per theme and determines whether humanity needs to migrate to Mars based on accumulated environmental damage.
+This is an ESG (Environmental, Social, Governance) educational story game application built with React and Express. The application presents users with environmental decision-making scenarios in a story-driven format similar to "Pillars of Eternity 2: Deadfire", featuring 5 different narrative themes (cute, scary, realistic, futuristic, dramatic). Each theme contains 6 sequential story chapters where players make binary choices between environmental protection and economic/convenience benefits. The game tracks progress through real-time scoring and visual feedback, culminating in theme-specific endings that determine whether humanity needs to migrate to Mars based on accumulated environmental damage.
+
+# Recent Changes (August 2025)
+
+- **Story-Driven Format**: Redesigned game from scenario-based to narrative story format with sequential chapters
+- **Reduced Scenarios**: Changed from 10 to 6 scenarios per theme for better pacing and narrative flow  
+- **Enhanced Story Content**: Completely rewrote story titles, content, choice titles and descriptions to be more narrative-focused and theme-appropriate
+- **Improved UI Layout**: Redesigned main game interface with story-first layout, polar bear status display alongside questions, and compact sidebar with progress tracking
+- **Theme-Specific Endings**: Added unique ending narratives for each theme that reflect the story's tone and context
+- **Single-Screen Format**: Implemented one question per screen approach similar to story-driven RPGs
+- **Real-time Status Display**: Polar bear health indicator now shows alongside story content for immediate feedback
 
 # User Preferences
 

@@ -13,12 +13,40 @@ interface GameOverModalProps {
 
 export default function GameOverModal({ session, marsYears, onRestart, onClose }: GameOverModalProps) {
   const getFinalComment = () => {
-    if (session.environmentScore <= 20) {
-      return "당신의 선택들로 인해 지구의 환경은 회복 불가능한 상태에 도달했습니다. 탄소 농도가 위험 수준을 넘어서면서 기후 변화가 가속화되었고, 인류는 화성으로의 이주를 준비해야 하는 상황에 이르렀습니다.";
-    } else if (session.carbonEmissions >= 600) {
-      return "대기 중 탄소 농도가 600ppm을 넘어서면서 지구의 기후 시스템이 붕괴되었습니다. 극심한 기후 변화로 인해 지구는 더 이상 인간이 살기 어려운 행성이 되었습니다.";
+    const theme = session.theme;
+    const envScore = session.environmentScore;
+    const carbonEmissions = session.carbonEmissions;
+    
+    // Theme-specific endings
+    const themeEndings = {
+      cute: {
+        bad: "😢 작은 회사가 만든 큰 실수... 당신의 선택들이 모여 지구가 아파하고 있어요. 친구들과 함께 한 꿈이 지구를 떠나야 하는 현실이 되었습니다. 다시 한번 도전해서 지구를 구해주세요!",
+        normal: "🌍 6번의 선택으로 이야기가 끝났지만, 지구는 여전히 위험해요. 더 많은 환경 친화적인 선택이 필요했답니다. 하지만 포기하지 마세요, 다시 도전할 수 있어요!"
+      },
+      scary: {
+        bad: "💀 파멸의 종소리가 울립니다... 탐욕에 사로잡힌 인간들의 선택이 지구를 죽음으로 이끌었습니다. 어둠이 세상을 뒤덮고, 생명체들이 하나둘 사라져갑니다. 화성으로의 도피만이 유일한 선택입니다...",
+        normal: "👻 공포의 시나리오가 현실이 되었습니다. 6개의 저주스러운 선택들이 지구의 운명을 바꿔놓았습니다. 아직 완전한 파멸은 아니지만, 어둠의 그림자가 짙어져가고 있습니다..."
+      },
+      realistic: {
+        bad: "📊 비즈니스 리포트: 6개의 전략적 의사결정 결과, 환경 리스크가 임계점을 넘어섰습니다. ESG 지표 악화로 지속가능성이 위험 수준에 도달했으며, 인류의 화성 이주 계획 검토가 필요한 상황입니다.",
+        normal: "💼 분기별 결산: 6번의 중요한 경영 판단을 마쳤으나, 환경과 경제의 균형점을 찾지 못했습니다. 추가적인 지속가능성 전략 수립이 시급한 상황입니다."
+      },
+      futuristic: {
+        bad: "🚀 2050년 최종 보고서: 첨단 기술을 활용한 6번의 선택에도 불구하고 지구 복원에 실패했습니다. 화성 테라포밍 프로젝트 가동이 불가피한 상황입니다. 인류의 새로운 거주지를 찾아야 합니다.",
+        normal: "🤖 AI 분석 결과: 6개의 미래 기술 도입 과정에서 환경과 기술의 균형점을 찾지 못했습니다. 추가적인 지구 재건 프로젝트가 필요합니다."
+      },
+      dramatic: {
+        bad: "⚔️ 전설의 끝: 환경 수호자의 6번의 선택이 모두 끝났으나, 지구는 여전히 위험에 처해있습니다. 영웅의 여정이 실패로 끝나며, 인류는 새로운 행성을 찾아 떠나야 하는 운명을 맞이했습니다...",
+        normal: "🎭 드라마의 막이 내렸습니다. 6번의 운명적인 선택을 마쳤지만, 완전한 승리를 거두지는 못했습니다. 이야기는 끝났지만 지구의 운명은 여전히 불확실합니다."
+      }
+    };
+    
+    const endings = themeEndings[theme as keyof typeof themeEndings] || themeEndings.realistic;
+    
+    if (envScore <= 20 || carbonEmissions >= 600) {
+      return endings.bad;
     } else {
-      return "10개의 중요한 환경 선택을 마쳤지만, 누적된 환경 파괴로 인해 지구의 미래는 여전히 불확실합니다. 더 많은 환경 친화적 선택이 필요했습니다.";
+      return endings.normal;
     }
   };
 

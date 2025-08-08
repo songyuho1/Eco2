@@ -90,7 +90,7 @@ export default function Game() {
     if (session) {
       const isGameOver = session.environmentScore <= 0 || 
                         session.carbonEmissions >= 600 || 
-                        session.currentStoryIndex >= 10;
+                        session.currentStoryIndex >= 6;
       
       if (isGameOver && !session.isGameOver) {
         updateSessionMutation.mutate({
@@ -159,8 +159,11 @@ export default function Game() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-earth-600"></div>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-earth-50 to-ice-100">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-4 border-earth-600 mx-auto mb-4"></div>
+          <p className="text-earth-700 text-lg font-medium">스토리를 준비하고 있습니다...</p>
+        </div>
       </div>
     );
   }
@@ -171,132 +174,116 @@ export default function Game() {
     <div className="bg-gradient-to-br from-earth-50 to-ice-100 min-h-screen font-game">
       {/* Header */}
       <header className="bg-white/90 backdrop-blur-sm shadow-lg sticky top-0 z-50">
-        <div className="max-w-6xl mx-auto px-4 py-4">
+        <div className="max-w-4xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
               <Globe className="text-earth-600 text-2xl" />
               <h1 className="text-2xl font-bold text-earth-700">지구의 운명</h1>
-              <span className="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded-full">ESG 환경 게임</span>
+              <span className="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded-full">ESG 스토리 게임</span>
             </div>
             
-            {/* Theme Selector */}
-            <div className="flex items-center space-x-2">
-              <label className="text-sm font-medium text-gray-700">테마:</label>
-              <Select value={selectedTheme} onValueChange={setSelectedTheme}>
-                <SelectTrigger className="w-32">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {THEMES.map((theme) => (
-                    <SelectItem key={theme.value} value={theme.value}>
-                      {theme.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+            {/* Theme Selector - Only show when not in middle of game */}
+            {(!session || session.currentStoryIndex === 0) && (
+              <div className="flex items-center space-x-2">
+                <label className="text-sm font-medium text-gray-700">테마:</label>
+                <Select value={selectedTheme} onValueChange={setSelectedTheme}>
+                  <SelectTrigger className="w-40">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {THEMES.map((theme) => (
+                      <SelectItem key={theme.value} value={theme.value}>
+                        {theme.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
           </div>
         </div>
       </header>
 
-      <div className="max-w-6xl mx-auto px-4 py-6 grid grid-cols-1 lg:grid-cols-4 gap-6">
-        
-        {/* Left Sidebar - Stats */}
-        <aside className="lg:col-span-1 space-y-4">
-          
-          {/* Score Dashboard */}
-          {session && (
-            <ScoreDashboard
-              environmentScore={session.environmentScore}
-              economicScore={session.economicScore}
-              carbonEmissions={session.carbonEmissions}
-            />
-          )}
-          
-          {/* Polar Bear Status */}
-          {session && (
-            <PolarBear
-              environmentScore={session.environmentScore}
-              carbonEmissions={session.carbonEmissions}
-            />
-          )}
-          
-          {/* Progress Indicator */}
-          {session && stories && (
-            <Card className="p-6">
-              <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-                <ListTodo className="text-earth-600 mr-2" />
-                진행 상황
-              </h3>
-              
-              <div className="space-y-3">
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">시나리오</span>
-                  <span className="text-sm font-bold">{session.currentStoryIndex} / {stories.length}</span>
-                </div>
-                
-                <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div 
-                    className="bg-gradient-to-r from-earth-500 to-earth-600 h-2 rounded-full transition-all duration-500"
-                    style={{ width: `${(session.currentStoryIndex / stories.length) * 100}%` }}
-                  />
-                </div>
-                
-                <div className="text-xs text-gray-500 text-center">
-                  <span>화성까지 예상: {calculateMarsYears()}년</span>
-                </div>
-              </div>
-            </Card>
-          )}
-        </aside>
-        
-        {/* Main Content Area */}
-        <main className="lg:col-span-3">
-          {currentStory && session ? (
-            <>
+      {/* Main Game Area */}
+      <div className="max-w-4xl mx-auto px-4 py-8">
+        {currentStory && session ? (
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            {/* Main Story Content */}
+            <div className="lg:col-span-2">
               <StoryDisplay
                 story={currentStory}
                 onChoice={handleChoice}
                 theme={selectedTheme}
                 isLoading={addChoiceMutation.isPending || updateSessionMutation.isPending}
               />
+            </div>
+            
+            {/* Right Sidebar - Status and History */}
+            <div className="lg:col-span-1 space-y-6">
               
+              {/* Progress and Status */}
+              <Card className="p-4">
+                <h3 className="text-sm font-semibold text-gray-800 mb-3 flex items-center">
+                  <ListTodo className="text-earth-600 mr-2 h-4 w-4" />
+                  진행 상황
+                </h3>
+                
+                <div className="space-y-3 text-sm">
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-600">장:</span>
+                    <span className="font-bold">{session.currentStoryIndex + 1} / {stories?.length}</span>
+                  </div>
+                  
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div 
+                      className="bg-gradient-to-r from-earth-500 to-earth-600 h-2 rounded-full transition-all duration-500"
+                      style={{ width: `${((session.currentStoryIndex) / (stories?.length || 6)) * 100}%` }}
+                    />
+                  </div>
+                  
+                  <div className="text-xs text-gray-500 text-center">
+                    <span>화성까지 예상: {calculateMarsYears()}년</span>
+                  </div>
+                </div>
+              </Card>
+
+              {/* Current Status */}
+              <ScoreDashboard
+                environmentScore={session.environmentScore}
+                economicScore={session.economicScore}
+                carbonEmissions={session.carbonEmissions}
+              />
+              
+              {/* Polar Bear Status */}
+              <PolarBear
+                environmentScore={session.environmentScore}
+                carbonEmissions={session.carbonEmissions}
+              />
+
               {/* Previous Choices History */}
               {session.choices && session.choices.length > 0 && (
-                <Card className="p-6 mt-6">
-                  <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-                    <ChartLine className="text-earth-600 mr-2" />
+                <Card className="p-4">
+                  <h3 className="text-sm font-semibold text-gray-800 mb-3 flex items-center">
+                    <ChartLine className="text-earth-600 mr-2 h-4 w-4" />
                     이전 선택들
                   </h3>
                   
-                  <div className="space-y-3">
-                    {session.choices.map((sessionChoice, index) => (
-                      <div key={sessionChoice.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                        <div className="flex items-center">
-                          <span className="w-6 h-6 bg-earth-100 text-earth-600 rounded-full flex items-center justify-center text-xs font-bold mr-3">
-                            {index + 1}
-                          </span>
-                          <span className="text-sm text-gray-700">{sessionChoice.choice.title}</span>
+                  <div className="space-y-2">
+                    {session.choices.slice(-3).map((sessionChoice, index) => (
+                      <div key={sessionChoice.id} className="p-2 bg-gray-50 rounded text-xs">
+                        <div className="font-medium text-gray-700 mb-1">
+                          {sessionChoice.choice.title}
                         </div>
-                        <div className="flex items-center space-x-2">
-                          {sessionChoice.environmentChange > 0 && (
-                            <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">
-                              환경 +{sessionChoice.environmentChange}
+                        <div className="flex gap-1">
+                          {sessionChoice.environmentChange !== 0 && (
+                            <span className={`px-1 py-0.5 rounded text-xs ${sessionChoice.environmentChange > 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                              환경 {sessionChoice.environmentChange > 0 ? '+' : ''}{sessionChoice.environmentChange}
                             </span>
                           )}
-                          {sessionChoice.environmentChange < 0 && (
-                            <span className="text-xs bg-red-100 text-red-700 px-2 py-1 rounded-full">
-                              환경 {sessionChoice.environmentChange}
-                            </span>
-                          )}
-                          {sessionChoice.economicChange > 0 && (
-                            <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full">
-                              경제 +{sessionChoice.economicChange}
-                            </span>
-                          )}
-                          {sessionChoice.economicChange < 0 && (
-                            <span className="text-xs bg-red-100 text-red-700 px-2 py-1 rounded-full">
-                              경제 {sessionChoice.economicChange}
+                          {sessionChoice.economicChange !== 0 && (
+                            <span className={`px-1 py-0.5 rounded text-xs ${sessionChoice.economicChange > 0 ? 'bg-blue-100 text-blue-700' : 'bg-red-100 text-red-700'}`}>
+                              경제 {sessionChoice.economicChange > 0 ? '+' : ''}{sessionChoice.economicChange}
                             </span>
                           )}
                         </div>
@@ -305,13 +292,16 @@ export default function Game() {
                   </div>
                 </Card>
               )}
-            </>
-          ) : (
-            <Card className="p-8 text-center">
-              <p className="text-gray-600">게임을 시작하는 중...</p>
-            </Card>
-          )}
-        </main>
+            </div>
+          </div>
+        ) : (
+          <Card className="p-12 text-center">
+            <div className="space-y-4">
+              <h2 className="text-2xl font-bold text-gray-800">스토리를 선택해주세요</h2>
+              <p className="text-gray-600">상단에서 테마를 선택하여 게임을 시작하세요.</p>
+            </div>
+          </Card>
+        )}
       </div>
 
       {/* Game Over Modal */}
