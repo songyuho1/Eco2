@@ -3,8 +3,8 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
+import MiniChart from "@/components/mini-chart";
 import { 
   Leaf, 
   DollarSign, 
@@ -92,11 +92,11 @@ export default function ReignsGame() {
   // Set current card when we get next card with transition
   useEffect(() => {
     if (nextCard) {
+      setCurrentCard(nextCard);
       setCardTransition('enter');
       setTimeout(() => {
-        setCurrentCard(nextCard);
         setCardTransition(null);
-      }, 200);
+      }, 300);
     }
   }, [nextCard]);
 
@@ -124,16 +124,13 @@ export default function ReignsGame() {
       // Update session data
       queryClient.setQueryData(['/api/reigns/sessions', sessionId], response.session);
       
-      // Get next card after a delay with improved transition
+      // Get next card after effects are shown
       setTimeout(() => {
         setShowEffects(false);
-        setCardTransition('exit');
         if (!response.gameOver) {
-          setTimeout(() => {
-            refetchCard();
-          }, 300);
+          refetchCard();
         }
-      }, 2200);
+      }, 2000);
     }
   });
 
@@ -147,13 +144,12 @@ export default function ReignsGame() {
   const handleSwipe = (direction: 'left' | 'right') => {
     if (makeDecisionMutation.isPending || !currentCard) return;
     
-    setCardTransition('exit');
     setSwipeDirection(direction);
     
     setTimeout(() => {
       makeDecisionMutation.mutate({ decision: direction });
       setSwipeDirection(null);
-    }, 400);
+    }, 300);
   };
 
   const resetGame = () => {
@@ -411,8 +407,8 @@ export default function ReignsGame() {
             </div>
             
             {/* Polar Bear Status - Side Panel */}
-            <div className="hidden md:flex items-center mx-8">
-              <div className="scale-150">
+            <div className="hidden md:flex items-center mx-6">
+              <div className="scale-110">
                 <PolarBear 
                   environmentScore={safeSession.environmentMeter} 
                   showAnimation={showEffects && lastEffects?.environment !== 0}
@@ -430,56 +426,44 @@ export default function ReignsGame() {
             </div>
           </div>
 
-          {/* Four Meters */}
+          {/* Four Meters - Mini Charts */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            {[
-              { key: 'environment', label: '환경', value: safeSession.environmentMeter },
-              { key: 'economy', label: '경제', value: safeSession.economyMeter },
-              { key: 'social', label: '사회', value: safeSession.socialMeter },
-              { key: 'technology', label: '기술', value: safeSession.technologyMeter },
-            ].map((meter) => (
-              <div key={meter.key} className="bg-white/20 rounded-lg p-3 relative">
-                <div className="flex items-center gap-2 mb-2">
-                  {getMeterIcon(meter.key)}
-                  <span className="text-white font-medium">{meter.label}</span>
-                  {lastEffects && showEffects && (
-                    <div className="flex items-center gap-1 animate-pulse">
-                      {getEffectIcon(lastEffects[meter.key as keyof GameEffects])}
-                      <span className={`text-sm font-bold animate-bounce ${
-                        lastEffects[meter.key as keyof GameEffects] > 0 ? 'text-green-300' : 'text-red-300'
-                      }`}>
-                        {lastEffects[meter.key as keyof GameEffects] > 0 ? '+' : ''}
-                        {lastEffects[meter.key as keyof GameEffects]}
-                      </span>
-                    </div>
-                  )}
-                </div>
-                <Progress 
-                  value={meter.value} 
-                  className={`h-3 ${getMeterColor(meter.value)}`}
-                />
-                <div className="text-white/80 text-sm mt-1">{meter.value}/100</div>
-                
-                {/* Score change animation */}
-                {lastEffects && showEffects && lastEffects[meter.key as keyof GameEffects] !== 0 && (
-                  <div className={`absolute -top-2 right-0 text-2xl font-bold animate-bounce ${
-                    lastEffects[meter.key as keyof GameEffects] > 0 ? 'text-green-400' : 'text-red-400'
-                  }`}>
-                    {lastEffects[meter.key as keyof GameEffects] > 0 ? '↗️' : '↘️'}
-                  </div>
-                )}
-              </div>
-            ))}
+            <MiniChart 
+              value={safeSession.environmentMeter}
+              label="환경"
+              icon={<Leaf className="w-4 h-4 text-green-400" />}
+              showChange={showEffects ? lastEffects?.environment || 0 : 0}
+              color="green"
+            />
+            <MiniChart 
+              value={safeSession.economyMeter}
+              label="경제"
+              icon={<DollarSign className="w-4 h-4 text-blue-400" />}
+              showChange={showEffects ? lastEffects?.economy || 0 : 0}
+              color="blue"
+            />
+            <MiniChart 
+              value={safeSession.socialMeter}
+              label="사회"
+              icon={<Users className="w-4 h-4 text-purple-400" />}
+              showChange={showEffects ? lastEffects?.social || 0 : 0}
+              color="purple"
+            />
+            <MiniChart 
+              value={safeSession.technologyMeter}
+              label="기술"
+              icon={<Cpu className="w-4 h-4 text-orange-400" />}
+              showChange={showEffects ? lastEffects?.technology || 0 : 0}
+              color="orange"
+            />
           </div>
 
           {/* Mobile Polar Bear Display */}
           <div className="mt-4 flex justify-center md:hidden">
-            <div className="scale-125">
-              <PolarBear 
-                environmentScore={safeSession.environmentMeter} 
-                showAnimation={showEffects && lastEffects?.environment !== 0}
-              />
-            </div>
+            <PolarBear 
+              environmentScore={safeSession.environmentMeter} 
+              showAnimation={showEffects && lastEffects?.environment !== 0}
+            />
           </div>
         </div>
       </div>
