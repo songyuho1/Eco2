@@ -4,13 +4,13 @@ This is a data-driven ESG (Environmental, Social, Governance) CEO simulation gam
 
 # Recent Changes (August 2025)
 
-- **Story-Driven Format**: Redesigned game from scenario-based to narrative story format with sequential chapters
-- **Reduced Scenarios**: Changed from 10 to 6 scenarios per theme for better pacing and narrative flow  
-- **Enhanced Story Content**: Completely rewrote story titles, content, choice titles and descriptions to be more narrative-focused and theme-appropriate
-- **Improved UI Layout**: Redesigned main game interface with story-first layout, polar bear status display alongside questions, and compact sidebar with progress tracking
-- **Theme-Specific Endings**: Added unique ending narratives for each theme that reflect the story's tone and context
-- **Single-Screen Format**: Implemented one question per screen approach similar to story-driven RPGs
-- **Real-time Status Display**: Polar bear health indicator now shows alongside story content for immediate feedback
+- **Reverted to Simplified Version**: Restored original 4-industry selection game format with simplified mechanics
+- **Industry Selection Screen**: CEO name input and 4 industry types (Technology, Manufacturing, Energy, Finance) with descriptions
+- **PDF Content Integration**: Incorporated scenario titles and concepts from the ESG planning document
+- **Simplified ESG Scoring**: Environment, Economy, Social, Governance meters with basic left/right choice effects
+- **Game Progression**: Year-based progression from 2025 to 2075 with game over conditions
+- **Korean Language Interface**: All UI elements and content in Korean language
+- **Clean Architecture**: Removed complex backend dependencies, using simple local state management
 
 # User Preferences
 
