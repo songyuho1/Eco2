@@ -1,6 +1,6 @@
 # Overview
 
-This is an ESG (Environmental, Social, Governance) educational story game application built with React and Express. The application presents users with environmental decision-making scenarios in a story-driven format similar to "Pillars of Eternity 2: Deadfire", featuring 5 different narrative themes (cute, scary, realistic, futuristic, dramatic). Each theme contains 6 sequential story chapters where players make binary choices between environmental protection and economic/convenience benefits. The game tracks progress through real-time scoring and visual feedback, culminating in theme-specific endings that determine whether humanity needs to migrate to Mars based on accumulated environmental damage.
+This is a data-driven ESG (Environmental, Social, Governance) CEO simulation game built with React and Express. Players take the role of a corporate CEO making strategic business decisions that balance ESG factors with financial performance. The game uses real climate and economic data models to simulate the long-term impacts of corporate decisions, emphasizing the core message: "Don't Go Mars - Your choices determine Earth's future and your career survival."
 
 # Recent Changes (August 2025)
 

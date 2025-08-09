@@ -4,6 +4,7 @@ import { storage } from "./storage";
 // Legacy imports (old schema) - keeping for backward compatibility
 // import { insertGameSessionSchema, insertGameSessionChoiceSchema } from "@shared/schema";
 import reignsRoutes from "./reigns-routes";
+import esgRoutes from "./esg-routes";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   
@@ -75,16 +76,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // New Reigns-style ESG game routes
-  app.post("/api/reigns/sessions", reignsRoutes.createSession.bind(reignsRoutes));
-  app.get("/api/reigns/sessions/:id", reignsRoutes.getSession.bind(reignsRoutes));
-  app.get("/api/reigns/sessions/:id/next-card", reignsRoutes.getNextCard.bind(reignsRoutes));
-  app.post("/api/reigns/sessions/:id/decisions/:cardId", reignsRoutes.makeDecision.bind(reignsRoutes));
-  app.get("/api/reigns/sessions/:id/history", reignsRoutes.getGameHistory.bind(reignsRoutes));
-  app.get("/api/reigns/climate-data", reignsRoutes.getClimateData.bind(reignsRoutes));
-  app.get("/api/reigns/predictions", reignsRoutes.getFuturePredictions.bind(reignsRoutes));
-  app.get("/api/reigns/cards", reignsRoutes.getAllCards.bind(reignsRoutes));
-  app.delete("/api/reigns/sessions/:id", reignsRoutes.deleteSession.bind(reignsRoutes));
+  // New Reigns-style ESG game routes - using simple ESG router
+  app.use("/api/reigns", esgRoutes);
 
   const httpServer = createServer(app);
   return httpServer;
