@@ -4,13 +4,14 @@ This is a data-driven ESG (Environmental, Social, Governance) CEO simulation gam
 
 # Recent Changes (August 2025)
 
-- **Reverted to Simplified Version**: Restored original 4-industry selection game format with simplified mechanics
-- **Industry Selection Screen**: CEO name input and 4 industry types (Technology, Manufacturing, Energy, Finance) with descriptions
-- **PDF Content Integration**: Incorporated scenario titles and concepts from the ESG planning document
-- **Simplified ESG Scoring**: Environment, Economy, Social, Governance meters with basic left/right choice effects
-- **Game Progression**: Year-based progression from 2025 to 2075 with game over conditions
-- **Korean Language Interface**: All UI elements and content in Korean language
-- **Clean Architecture**: Removed complex backend dependencies, using simple local state management
+- **"Don't Go Mars!" Game Implementation**: Complete redesign based on provided game design document
+- **Player Role Selection**: 4 character types - 시민(Citizen), 경영자(Executive), 상인(Merchant), 회사원(Employee)
+- **Reigns-Style Gameplay**: Card-based decision system with left/right choices and immediate consequences
+- **ESGM Score System**: Environment, Social, Governance, Money meters (0-100) with balanced gameplay
+- **Rich Ending System**: 8+ different endings based on score failures (0 points) or extremes (100 points)
+- **Visual Polish**: Dark space theme with gradient backgrounds, card animations, and role-based UI
+- **Game Balance**: Each decision affects multiple scores, creating strategic depth and replayability
+- **Korean Narrative**: Full Korean language with character dialogues and scenario descriptions
 
 # User Preferences
 
