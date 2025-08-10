@@ -9,11 +9,12 @@ This is a data-driven ESG (Environmental, Social, Governance) CEO simulation gam
 - **Reigns-Style Gameplay**: Card-based decision system with left/right choices and immediate consequences
 - **ESGM Score System**: Environment, Social, Governance, Money meters (0-100) with balanced gameplay
 - **Rich Ending System**: 8+ different endings based on score failures (0 points) or extremes (100 points)
-- **Environmental Impact Analysis**: Real-world data integration showing carbon emissions, sea level rise, temperature increase, and CO2 levels
+- **Environmental Impact Analysis**: Real scientific data integration (CO2: 422.5ppm→450ppm, Sea level: 3.4→6.4mm/yr, Temperature: 1.6→2.0°C, Carbon emissions: 0.8→4.2%/yr)
 - **Warning System**: Visual alerts when scores approach dangerous levels (≤15 or ≥85) with critical warnings (≤5 or ≥95)
 - **Enhanced Score Display**: Clear "/100" notation with color-coded progress bars and real-time status indicators
 - **Precise Game Over**: Exact 0 or 100 point triggers for game endings, ensuring balanced challenge
 - **Preview Effects**: Decision buttons show exact score changes before selection (+/- values for each metric)
+- **Mars Colonization Theme**: Scientific backing for environmental failure scenarios based on SpaceX 2026-2030 mission plans and terraforming research
 - **Visual Polish**: Dark space theme with gradient backgrounds, card animations, and role-based UI
 - **Korean Narrative**: Full Korean language with character dialogues and scenario descriptions
 

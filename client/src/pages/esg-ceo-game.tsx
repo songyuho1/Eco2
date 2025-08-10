@@ -153,25 +153,32 @@ const GAME_SCENARIOS = [
   }
 ];
 
-// 환경 데이터 계산 함수
+// 환경 데이터 계산 함수 (실제 과학 데이터 기반)
 const calculateEnvironmentalImpact = (environmentScore: number, years: number) => {
-  // 환경 점수가 낮을수록 악화된 상황
+  // 환경 점수가 낮을수록 악화된 상황 (0점이면 최대 악화)
   const impactMultiplier = (100 - environmentScore) / 100;
   
   return {
-    carbonIncrease: Math.round(impactMultiplier * years * 2.5), // 연간 2.5% 증가율 기준
-    seaLevelRise: Math.round(impactMultiplier * years * 0.32 * 10) / 10, // 연간 3.2mm 상승 기준
-    temperatureIncrease: Math.round(impactMultiplier * years * 0.15 * 10) / 10, // 연간 0.15도 상승 기준
-    co2Level: Math.round(420 + (impactMultiplier * years * 3)), // 2025년 420ppm 기준
+    // CO2 배출량 증가 - 2024년 기준 연간 0.8-1.1% 증가, 최악의 경우 5-6% 증가 가능
+    carbonIncrease: Math.round(impactMultiplier * years * 4.2), // 연간 최대 4.2% 증가율
+    
+    // 해수면 상승 - 현재 3.4mm/년, 2024년 5.9mm/년 스파이크, 최악 시나리오 6.4mm/년
+    seaLevelRise: Math.round(impactMultiplier * years * 6.4 * 10) / 10, // 연간 최대 6.4mm 상승
+    
+    // 지구 평균 온도 - 2022-2024년 0.45°C 증가, 최악 시나리오 연간 0.2°C 증가 가능
+    temperatureIncrease: Math.round(impactMultiplier * years * 0.2 * 10) / 10, // 연간 최대 0.2°C 상승
+    
+    // CO2 농도 - 2024년 422.5ppm, 연간 2.4ppm 증가, 최악 시나리오 5ppm/년
+    co2Level: Math.round(422.5 + (impactMultiplier * years * 5)), // 2025년 422.5ppm 기준
   };
 };
 
 // 엔딩 시나리오들
 const ENDING_SCENARIOS = {
   environment_0: {
-    title: "지구 포기 선언",
-    description: "환경 파괴가 극심해져 지구가 더 이상 살 수 없는 곳이 되었습니다.",
-    ending: "화성행 우주선에 탑승하게 되었습니다... Don't Go Mars의 경고를 무시한 결과입니다.",
+    title: "지구 포기 선언 - 화성 이주 프로젝트 가동",
+    description: "기후 변화로 지구가 더 이상 거주 불가능해졌습니다. SpaceX의 Starship 프로그램이 마지막 희망이 되었습니다.",
+    ending: "2026년 화성 식민지 1차 미션에 탑승합니다. 지구를 구할 수 있었는데... Don't Go Mars의 경고를 무시한 결과입니다. 화성 테라포밍에는 최소 500년이 걸릴 예정입니다.",
     color: "from-red-500 to-orange-500"
   },
   environment_100: {
@@ -419,26 +426,49 @@ export default function ESGCEOGame() {
 
             {/* 환경 데이터 영향 분석 */}
             {yearsPlayed > 0 && (
-              <div className="bg-white/10 p-6 rounded-lg">
-                <h3 className="text-xl font-bold text-white mb-4">🌡️ 환경 영향 분석</h3>
+              <div className="bg-white/10 p-6 rounded-lg border border-white/20">
+                <h3 className="text-xl font-bold text-white mb-4">🌡️ 실제 환경 데이터 기반 영향 분석</h3>
                 <div className="grid grid-cols-2 gap-4 text-sm text-white/90">
-                  <div className="bg-red-500/20 p-3 rounded">
+                  <div className="bg-red-500/20 p-3 rounded border border-red-400/30">
                     <p className="font-semibold">탄소 배출량 증가</p>
                     <p className="text-lg text-red-300">+{environmentalData.carbonIncrease}%</p>
+                    <p className="text-xs text-red-200 mt-1">
+                      (2024년 기준 연간 0.8% → 최악 4.2%)
+                    </p>
                   </div>
-                  <div className="bg-blue-500/20 p-3 rounded">
+                  <div className="bg-blue-500/20 p-3 rounded border border-blue-400/30">
                     <p className="font-semibold">해수면 상승</p>
                     <p className="text-lg text-blue-300">+{environmentalData.seaLevelRise}cm</p>
+                    <p className="text-xs text-blue-200 mt-1">
+                      (현재 3.4mm/년 → 최악 6.4mm/년)
+                    </p>
                   </div>
-                  <div className="bg-orange-500/20 p-3 rounded">
+                  <div className="bg-orange-500/20 p-3 rounded border border-orange-400/30">
                     <p className="font-semibold">지구 평균 온도</p>
                     <p className="text-lg text-orange-300">+{environmentalData.temperatureIncrease}°C</p>
+                    <p className="text-xs text-orange-200 mt-1">
+                      (2024년 1.6°C → 한계점 2.0°C)
+                    </p>
                   </div>
-                  <div className="bg-gray-500/20 p-3 rounded">
+                  <div className="bg-gray-500/20 p-3 rounded border border-gray-400/30">
                     <p className="font-semibold">CO₂ 농도</p>
                     <p className="text-lg text-gray-300">{environmentalData.co2Level}ppm</p>
+                    <p className="text-xs text-gray-200 mt-1">
+                      (2024년 422.5ppm → 위험 450ppm)
+                    </p>
                   </div>
                 </div>
+                
+                {/* 화성 이주 관련 메시지 */}
+                {endingType?.includes('environment_0') && (
+                  <div className="mt-4 p-4 bg-red-500/30 rounded border border-red-400 text-center">
+                    <h4 className="font-bold text-red-200 mb-2">🚀 화성 이주 프로젝트 활성화</h4>
+                    <p className="text-sm text-red-100">
+                      SpaceX 2026년 화성 미션 준비 완료. 지구 복구 불가능 판정.
+                      <br />화성 테라포밍 완료까지 500년 소요 예정.
+                    </p>
+                  </div>
+                )}
               </div>
             )}
 
