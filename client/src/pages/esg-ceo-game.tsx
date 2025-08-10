@@ -153,6 +153,19 @@ const GAME_SCENARIOS = [
   }
 ];
 
+// 환경 데이터 계산 함수
+const calculateEnvironmentalImpact = (environmentScore: number, years: number) => {
+  // 환경 점수가 낮을수록 악화된 상황
+  const impactMultiplier = (100 - environmentScore) / 100;
+  
+  return {
+    carbonIncrease: Math.round(impactMultiplier * years * 2.5), // 연간 2.5% 증가율 기준
+    seaLevelRise: Math.round(impactMultiplier * years * 0.32 * 10) / 10, // 연간 3.2mm 상승 기준
+    temperatureIncrease: Math.round(impactMultiplier * years * 0.15 * 10) / 10, // 연간 0.15도 상승 기준
+    co2Level: Math.round(420 + (impactMultiplier * years * 3)), // 2025년 420ppm 기준
+  };
+};
+
 // 엔딩 시나리오들
 const ENDING_SCENARIOS = {
   environment_0: {
@@ -161,11 +174,23 @@ const ENDING_SCENARIOS = {
     ending: "화성행 우주선에 탑승하게 되었습니다... Don't Go Mars의 경고를 무시한 결과입니다.",
     color: "from-red-500 to-orange-500"
   },
+  environment_100: {
+    title: "극단적 환경주의",
+    description: "과도한 환경 규제로 경제와 사회가 마비되었습니다.",
+    ending: "완벽한 자연은 남았지만, 인간 사회는 붕괴되었습니다.",
+    color: "from-green-700 to-green-900"
+  },
   social_0: {
     title: "사회적 신뢰 붕괴",
     description: "시민들의 신뢰를 완전히 잃어 더 이상 활동할 수 없게 되었습니다.",
     ending: "모든 사회적 관계가 단절되었습니다. 고립된 삶을 살아가야 합니다.",
     color: "from-gray-500 to-gray-700"
+  },
+  social_100: {
+    title: "복지 과잉의 역설",
+    description: "무제한 복지로 사회 생산성이 완전히 멈췄습니다.",
+    ending: "모두가 만족했지만, 아무도 일하지 않는 사회가 되었습니다.",
+    color: "from-blue-700 to-blue-900"
   },
   governance_0: {
     title: "부패와 윤리적 파산",
@@ -173,11 +198,23 @@ const ENDING_SCENARIOS = {
     ending: "수갑을 차고 법정으로 향하는 길... 모든 것을 잃었습니다.",
     color: "from-red-600 to-red-800"
   },
+  governance_100: {
+    title: "과도한 통제의 함정",
+    description: "완벽한 규제로 모든 혁신과 창의성이 사라졌습니다.",
+    ending: "부패는 없지만, 생명력도 없는 조직이 되었습니다.",
+    color: "from-purple-700 to-purple-900"
+  },
   money_0: {
     title: "경제적 파산",
     description: "재정이 완전히 고갈되어 더 이상 운영할 수 없습니다.",
     ending: "빈 사무실에 혼자 남겨졌습니다. 모든 것이 끝났습니다.",
     color: "from-gray-600 to-black"
+  },
+  money_100: {
+    title: "탐욕의 종착역",
+    description: "무한한 이익 추구로 다른 모든 가치를 파괴했습니다.",
+    ending: "금고는 가득하지만, 세상은 폐허가 되었습니다.",
+    color: "from-yellow-700 to-yellow-900"
   },
   success: {
     title: "균형잡힌 성공",
@@ -232,9 +269,9 @@ export default function ESGCEOGame() {
       setCurrentScenario(prev => (prev + 1) % GAME_SCENARIOS.length);
       setYear(prev => prev + 1);
       
-      // 게임오버 체크
-      const zeroScore = Object.entries(newScores).find(([key, value]) => value <= 0);
-      const maxScore = Object.entries(newScores).find(([key, value]) => value >= 100);
+      // 게임오버 체크 - 정확히 0점 또는 100점에서 게임 종료
+      const zeroScore = Object.entries(newScores).find(([key, value]) => value === 0);
+      const maxScore = Object.entries(newScores).find(([key, value]) => value === 100);
       
       if (zeroScore) {
         setEndingType(zeroScore[0] + '_0');
@@ -356,10 +393,12 @@ export default function ESGCEOGame() {
   // 게임오버 화면
   if (gameOver && endingType) {
     const ending = ENDING_SCENARIOS[endingType as keyof typeof ENDING_SCENARIOS] || ENDING_SCENARIOS.success;
+    const yearsPlayed = year - 2025;
+    const environmentalData = calculateEnvironmentalImpact(scores.environment, yearsPlayed);
     
     return (
       <div className={`min-h-screen bg-gradient-to-br ${ending.color} p-4 flex items-center justify-center`}>
-        <Card className="max-w-3xl w-full bg-black/80 backdrop-blur border-white/20">
+        <Card className="max-w-4xl w-full bg-black/80 backdrop-blur border-white/20">
           <CardHeader>
             <CardTitle className="text-center text-4xl text-white mb-4">
               {ending.title}
@@ -378,6 +417,31 @@ export default function ESGCEOGame() {
               "{ending.ending}"
             </p>
 
+            {/* 환경 데이터 영향 분석 */}
+            {yearsPlayed > 0 && (
+              <div className="bg-white/10 p-6 rounded-lg">
+                <h3 className="text-xl font-bold text-white mb-4">🌡️ 환경 영향 분석</h3>
+                <div className="grid grid-cols-2 gap-4 text-sm text-white/90">
+                  <div className="bg-red-500/20 p-3 rounded">
+                    <p className="font-semibold">탄소 배출량 증가</p>
+                    <p className="text-lg text-red-300">+{environmentalData.carbonIncrease}%</p>
+                  </div>
+                  <div className="bg-blue-500/20 p-3 rounded">
+                    <p className="font-semibold">해수면 상승</p>
+                    <p className="text-lg text-blue-300">+{environmentalData.seaLevelRise}cm</p>
+                  </div>
+                  <div className="bg-orange-500/20 p-3 rounded">
+                    <p className="font-semibold">지구 평균 온도</p>
+                    <p className="text-lg text-orange-300">+{environmentalData.temperatureIncrease}°C</p>
+                  </div>
+                  <div className="bg-gray-500/20 p-3 rounded">
+                    <p className="font-semibold">CO₂ 농도</p>
+                    <p className="text-lg text-gray-300">{environmentalData.co2Level}ppm</p>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* 최종 점수 */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 my-8">
               {Object.entries(scores).map(([key, value]) => {
@@ -393,7 +457,7 @@ export default function ESGCEOGame() {
                   <div key={key} className="text-center bg-white/10 p-4 rounded-lg">
                     <Icon className={`w-8 h-8 mx-auto mb-2 ${color}`} />
                     <p className="font-semibold text-white">{label}</p>
-                    <p className="text-3xl font-bold text-white">{value}</p>
+                    <p className="text-3xl font-bold text-white">{value}/100</p>
                   </div>
                 );
               })}
@@ -401,7 +465,7 @@ export default function ESGCEOGame() {
 
             <div className="text-white/70">
               <p>최종 연도: {year}</p>
-              <p>생존 기간: {year - 2025}년</p>
+              <p>생존 기간: {yearsPlayed}년</p>
             </div>
 
             <Button onClick={resetGame} size="lg" className="px-12 py-3 text-lg bg-white/20 hover:bg-white/30 text-white border-white/40">
@@ -444,14 +508,39 @@ export default function ESGCEOGame() {
               const config = configs[key as keyof typeof configs];
               const Icon = config.icon;
               
+              // 위험 신호 계산
+              const isDangerous = value <= 15 || value >= 85;
+              const isCritical = value <= 5 || value >= 95;
+              
               return (
-                <div key={key} className="bg-white/10 backdrop-blur rounded-lg p-3 text-center">
+                <div key={key} className={`backdrop-blur rounded-lg p-3 text-center border-2 transition-all ${
+                  isCritical 
+                    ? 'bg-red-500/30 border-red-400 animate-pulse' 
+                    : isDangerous 
+                    ? 'bg-yellow-500/20 border-yellow-400'
+                    : 'bg-white/10 border-white/20'
+                }`}>
                   <Icon className={`w-6 h-6 mx-auto mb-1 ${config.color}`} />
                   <p className="text-xs text-white/80">{config.label}</p>
-                  <p className="text-lg font-bold text-white">{value}</p>
+                  <p className="text-lg font-bold text-white">
+                    {value}<span className="text-sm opacity-60">/100</span>
+                  </p>
+                  
+                  {/* 위험 상태 표시 */}
+                  {isCritical && (
+                    <p className="text-xs text-red-300 font-bold">
+                      {value <= 5 ? '위험!' : '과도!'}
+                    </p>
+                  )}
+                  {isDangerous && !isCritical && (
+                    <p className="text-xs text-yellow-300 font-bold">주의</p>
+                  )}
+                  
                   <div className="w-full bg-gray-700 rounded-full h-2 mt-1">
                     <div 
-                      className={`${config.bg} h-2 rounded-full transition-all duration-500`}
+                      className={`h-2 rounded-full transition-all duration-500 ${
+                        isCritical ? 'bg-red-500' : isDangerous ? 'bg-yellow-500' : config.bg
+                      }`}
                       style={{ width: `${value}%` }}
                     />
                   </div>
@@ -487,26 +576,60 @@ export default function ESGCEOGame() {
 
               {/* 선택 버튼들 */}
               {!showEffect && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-4">
                   <Button 
                     onClick={() => handleDecision('left')}
-                    className="h-auto py-6 px-6 bg-green-500 hover:bg-green-600 text-white border-0"
+                    className="w-full h-auto py-6 px-6 bg-green-500 hover:bg-green-600 text-white border-0"
                     disabled={showEffect}
                   >
-                    <div className="flex items-center justify-center">
-                      <ChevronLeft className="w-5 h-5 mr-2" />
-                      <span className="text-center">{scenario.option_left.text}</span>
+                    <div className="w-full">
+                      <div className="flex items-center justify-center mb-2">
+                        <ChevronLeft className="w-5 h-5 mr-2" />
+                        <span className="text-center font-bold">{scenario.option_left.text}</span>
+                      </div>
+                      <div className="grid grid-cols-4 gap-1 text-xs">
+                        {Object.entries(scenario.option_left.effects).map(([key, value]) => {
+                          const labels = {
+                            environment: "환경",
+                            social: "사회",
+                            governance: "지배",
+                            money: "재정"
+                          };
+                          return (
+                            <span key={key} className={`${value > 0 ? 'text-green-200' : value < 0 ? 'text-red-200' : 'text-gray-300'}`}>
+                              {labels[key as keyof typeof labels]}: {value > 0 ? '+' : ''}{value}
+                            </span>
+                          );
+                        })}
+                      </div>
                     </div>
                   </Button>
                   
                   <Button 
                     onClick={() => handleDecision('right')}
-                    className="h-auto py-6 px-6 bg-red-500 hover:bg-red-600 text-white border-0"
+                    className="w-full h-auto py-6 px-6 bg-red-500 hover:bg-red-600 text-white border-0"
                     disabled={showEffect}
                   >
-                    <div className="flex items-center justify-center">
-                      <span className="text-center">{scenario.option_right.text}</span>
-                      <ChevronRight className="w-5 h-5 ml-2" />
+                    <div className="w-full">
+                      <div className="flex items-center justify-center mb-2">
+                        <span className="text-center font-bold">{scenario.option_right.text}</span>
+                        <ChevronRight className="w-5 h-5 ml-2" />
+                      </div>
+                      <div className="grid grid-cols-4 gap-1 text-xs">
+                        {Object.entries(scenario.option_right.effects).map(([key, value]) => {
+                          const labels = {
+                            environment: "환경",
+                            social: "사회", 
+                            governance: "지배",
+                            money: "재정"
+                          };
+                          return (
+                            <span key={key} className={`${value > 0 ? 'text-green-200' : value < 0 ? 'text-red-200' : 'text-gray-300'}`}>
+                              {labels[key as keyof typeof labels]}: {value > 0 ? '+' : ''}{value}
+                            </span>
+                          );
+                        })}
+                      </div>
                     </div>
                   </Button>
                 </div>
