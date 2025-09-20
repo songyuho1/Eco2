@@ -1,7 +1,12 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* Tailwind Base Styles */
+@import 'tailwindcss/base';
+
+/* Tailwind Component Classes */
+@import 'tailwindcss/components';
+
+/* Tailwind Utility Classes */
+@import 'tailwindcss/utilities';
 
 :root {
   --background: hsl(0, 0%, 100%);
@@ -110,14 +115,16 @@
   --shadow-2xl: 0px 2px 0px 0px hsl(202.8169, 89.1213%, 53.1373%, 0.00);
 }
 
-@layer base {
-  * {
-    @apply border-border;
-  }
+/* Base Styles */
+* {
+  border-color: var(--border);
+}
 
-  body {
-    @apply font-sans antialiased bg-background text-foreground;
-  }
+body {
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  background-color: var(--background);
+  color: var(--foreground);
 }
 
 .font-game {

@@ -1,8 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Input } from "@/components/ui/input";
+import { motion, AnimatePresence } from "framer-motion";
+import { ScoreChangeIndicator } from "@/components/score-change-indicator";
 import { 
   Leaf, 
   DollarSign, 
@@ -50,10 +52,10 @@ const PLAYER_ROLES = [
     color: "text-purple-600"
   },
   { 
-    id: "employee", 
-    name: "회사원", 
-    emoji: "💼", 
-    description: "회사에서 일하는 직장인",
+    id: "public_servant", 
+    name: "공무원", 
+    emoji: "👨‍💼", 
+    description: "정부에서 일하는 공직자",
     icon: Users,
     color: "text-orange-600"
   }
@@ -155,37 +157,69 @@ const GAME_SCENARIOS = [
 
 // 환경 데이터 계산 함수 (실제 과학 데이터 기반)
 const calculateEnvironmentalImpact = (environmentScore: number, years: number) => {
-  // 환경 점수가 낮을수록 악화된 상황 (0점이면 최대 악화)
+  // 환경 점수에 따른 영향도 계산 (100점이면 최소 영향, 0점이면 최대 영향)
   const impactMultiplier = (100 - environmentScore) / 100;
+  const baseMultiplier = 0.2 + (impactMultiplier * 0.8); // 최소 20% ~ 최대 100% 영향
   
   return {
-    // CO2 배출량 증가 - 2024년 기준 연간 0.8-1.1% 증가, 최악의 경우 5-6% 증가 가능
-    carbonIncrease: Math.round(impactMultiplier * years * 4.2), // 연간 최대 4.2% 증가율
+    // CO2 배출량 증가 - IPCC 데이터 기반
+    // 기본: 연간 1.1% 증가 (2024 기준)
+    // 최악: 연간 4.2% 증가 (극단적 시나리오)
+    carbonIncrease: Math.round(years * (1.1 + (3.1 * impactMultiplier))),
     
-    // 해수면 상승 - 현재 3.4mm/년, 2024년 5.9mm/년 스파이크, 최악 시나리오 6.4mm/년
-    seaLevelRise: Math.round(impactMultiplier * years * 6.4 * 10) / 10, // 연간 최대 6.4mm 상승
+    // 해수면 상승 - NOAA 데이터 기반
+    // 기본: 연간 3.4mm (2024 측정치)
+    // 최악: 연간 6.4mm (극단적 시나리오)
+    seaLevelRise: Math.round((years * (3.4 + (3.0 * impactMultiplier))) * 10) / 10,
     
-    // 지구 평균 온도 - 2022-2024년 0.45°C 증가, 최악 시나리오 연간 0.2°C 증가 가능
-    temperatureIncrease: Math.round(impactMultiplier * years * 0.2 * 10) / 10, // 연간 최대 0.2°C 상승
+    // 지구 평균 온도 - IPCC AR6 보고서 기반
+    // 기본: 연간 0.1°C (현재 추세)
+    // 최악: 연간 0.2°C (극단적 시나리오)
+    temperatureIncrease: Math.round((years * (0.1 + (0.1 * impactMultiplier))) * 10) / 10,
     
-    // CO2 농도 - 2024년 422.5ppm, 연간 2.4ppm 증가, 최악 시나리오 5ppm/년
-    co2Level: Math.round(422.5 + (impactMultiplier * years * 5)), // 2025년 422.5ppm 기준
+    // CO2 농도 - Mauna Loa 관측소 데이터 기반
+    // 기본: 연간 2.4ppm 증가 (2024 측정치)
+    // 최악: 연간 5.0ppm 증가 (극단적 시나리오)
+    co2Level: Math.round(422.5 + (years * (2.4 + (2.6 * baseMultiplier)))),
   };
 };
 
 // 엔딩 시나리오들
-const ENDING_SCENARIOS = {
-  environment_0: {
-    title: "지구 포기 선언 - 화성 이주 프로젝트 가동",
-    description: "기후 변화로 지구가 더 이상 거주 불가능해졌습니다. SpaceX의 Starship 프로그램이 마지막 희망이 되었습니다.",
-    ending: "2026년 화성 식민지 1차 미션에 탑승합니다. 지구를 구할 수 있었는데... Don't Go Mars의 경고를 무시한 결과입니다. 화성 테라포밍에는 최소 500년이 걸릴 예정입니다.",
-    color: "from-red-500 to-orange-500"
+interface EndingScenario {
+  title: string;
+  description: string;
+  ending: string;
+  color: string;
+  icon?: string;
+  icons?: string[];
+  bgEffect?: string;
+}
+
+const ENDING_SCENARIOS: Record<string, EndingScenario> = {
+  success_2077: {
+    title: "2077년까지 생존 성공!",
+    description: "축하드려요! 지구를 잘 지키셨네요!",
+    ending: "화성으로 안 이주해도 될 것 같아요!",
+    color: "from-green-400 to-blue-500",
+    icon: "🐸",
+    bgEffect: "particles-success"
   },
-  environment_100: {
+  extreme_environment: {
     title: "극단적 환경주의",
     description: "과도한 환경 규제로 경제와 사회가 마비되었습니다.",
     ending: "완벽한 자연은 남았지만, 인간 사회는 붕괴되었습니다.",
-    color: "from-green-700 to-green-900"
+    color: "from-green-700 to-green-900",
+    icon: "🌲",
+    icons: ["🌲", "🌿", "🍃"],
+    bgEffect: "particles-nature"
+  },
+  game_over: {
+    title: "지구 포기 선언 - 화성 이주 프로젝트 가동",
+    description: "기후 변화로 지구가 더 이상 거주 불가능해졌습니다.",
+    ending: "SpaceX의 Starship 프로그램이 마지막 희망이 되었습니다. 2026년 화성 식민지 1차 미션에 탑승합니다.",
+    color: "from-red-950 to-red-900",
+    icon: "🚀",
+    icons: ["🚀", "🔴"]
   },
   social_0: {
     title: "사회적 신뢰 붕괴",
@@ -243,6 +277,7 @@ export default function ESGCEOGame() {
     governance: 50,   // G: 지배구조
     money: 50         // M: 재정
   });
+  const [prevScores, setPrevScores] = useState(scores);
   const [gameOver, setGameOver] = useState(false);
   const [endingType, setEndingType] = useState<string | null>(null);
   const [showEffect, setShowEffect] = useState(false);
@@ -257,6 +292,9 @@ export default function ESGCEOGame() {
   const handleDecision = (choice: 'left' | 'right') => {
     const scenario = GAME_SCENARIOS[currentScenario];
     const effects = choice === 'left' ? scenario.option_left.effects : scenario.option_right.effects;
+    
+    // 현재 점수를 이전 점수로 저장
+    setPrevScores(scores);
     
     // 점수 업데이트
     const newScores = {
@@ -276,23 +314,25 @@ export default function ESGCEOGame() {
       setCurrentScenario(prev => (prev + 1) % GAME_SCENARIOS.length);
       setYear(prev => prev + 1);
       
-      // 게임오버 체크 - 정확히 0점 또는 100점에서 게임 종료
-      const zeroScore = Object.entries(newScores).find(([key, value]) => value === 0);
-      const maxScore = Object.entries(newScores).find(([key, value]) => value === 100);
-      
-      if (zeroScore) {
-        setEndingType(zeroScore[0] + '_0');
+      // 게임오버 체크
+      if (year >= 2077) {
+        // 2077년까지 생존 성공
+        setEndingType('success_2077');
         setTimeout(() => setGameOver(true), 500);
-      } else if (maxScore) {
-        // 100점도 게임오버 (과도한 집중)
-        setEndingType(maxScore[0] + '_100');
+      } else if (newScores.environment === 100) {
+        // 환경 100점 특별 엔딩
+        setEndingType('extreme_environment');
         setTimeout(() => setGameOver(true), 500);
-      } else if (year >= 2075) {
-        // 50년 생존 성공
-        setEndingType('success');
+      } else if (
+        [newScores.environment, newScores.social, newScores.governance, newScores.money].some(
+          (score) => score <= 0 || score >= 100
+        )
+      ) {
+        // 기본 게임오버
+        setEndingType('game_over');
         setTimeout(() => setGameOver(true), 500);
       }
-    }, 2000);
+    }, 3000);
   };
 
   const resetGame = () => {
@@ -412,17 +452,38 @@ export default function ESGCEOGame() {
             </CardTitle>
           </CardHeader>
           <CardContent className="text-center space-y-8">
-            <div className="text-6xl mb-6">
-              {endingType === 'success' ? '🌍✨' : endingType?.includes('environment') ? '🚀🔴' : '💀'}
+            <div className="text-center mb-8">
+              {endingType === 'game_over' ? (
+                <div className="flex justify-center items-center gap-8 mb-6">
+                  <div className="text-6xl">🚀</div>
+                  <div className="text-6xl">🔴</div>
+                </div>
+              ) : (
+                <div className="text-8xl mb-6 animate-bounce">
+                  {ending.icon}
+                </div>
+              )}
+              
+              <div className="mb-4 text-2xl text-white font-bold">
+                {ending.title}
+              </div>
+              
+              <div className={`text-xl ${
+                endingType === 'game_over' 
+                  ? 'text-red-300' 
+                  : 'text-green-300'
+              } leading-relaxed mb-4`}>
+                {ending.description}
+              </div>
+              
+              <div className={`text-lg ${
+                endingType === 'game_over'
+                  ? 'text-yellow-300'
+                  : 'text-blue-200'
+              } italic leading-relaxed`}>
+                "{ending.ending}"
+              </div>
             </div>
-            
-            <p className="text-xl text-white/90 leading-relaxed">
-              {ending.description}
-            </p>
-            
-            <p className="text-lg text-yellow-300 italic leading-relaxed">
-              "{ending.ending}"
-            </p>
 
             {/* 환경 데이터 영향 분석 */}
             {yearsPlayed > 0 && (
@@ -543,18 +604,33 @@ export default function ESGCEOGame() {
               const isCritical = value <= 5 || value >= 95;
               
               return (
-                <div key={key} className={`backdrop-blur rounded-lg p-3 text-center border-2 transition-all ${
+                <div key={key} className={`relative backdrop-blur rounded-lg p-3 text-center border-2 transition-all ${
                   isCritical 
                     ? 'bg-red-500/30 border-red-400 animate-pulse' 
                     : isDangerous 
                     ? 'bg-yellow-500/20 border-yellow-400'
                     : 'bg-white/10 border-white/20'
                 }`}>
+                  {/* 점수 변화 애니메이션 */}
+                  <AnimatePresence>
+                    {showEffect && (value - prevScores[key as keyof typeof scores] !== 0) && (
+                      <ScoreChangeIndicator 
+                        value={value - prevScores[key as keyof typeof scores]}
+                        className={config.color}
+                      />
+                    )}
+                  </AnimatePresence>
+
                   <Icon className={`w-6 h-6 mx-auto mb-1 ${config.color}`} />
                   <p className="text-xs text-white/80">{config.label}</p>
-                  <p className="text-lg font-bold text-white">
+                  <motion.p 
+                    className="text-lg font-bold text-white"
+                    initial={false}
+                    animate={{ scale: showEffect ? [1, 1.1, 1] : 1 }}
+                    transition={{ duration: 0.3 }}
+                  >
                     {value}<span className="text-sm opacity-60">/100</span>
-                  </p>
+                  </motion.p>
                   
                   {/* 위험 상태 표시 */}
                   {isCritical && (
@@ -613,24 +689,9 @@ export default function ESGCEOGame() {
                     disabled={showEffect}
                   >
                     <div className="w-full">
-                      <div className="flex items-center justify-center mb-2">
+                      <div className="flex items-center justify-center">
                         <ChevronLeft className="w-5 h-5 mr-2" />
                         <span className="text-center font-bold">{scenario.option_left.text}</span>
-                      </div>
-                      <div className="grid grid-cols-4 gap-1 text-xs">
-                        {Object.entries(scenario.option_left.effects).map(([key, value]) => {
-                          const labels = {
-                            environment: "환경",
-                            social: "사회",
-                            governance: "지배",
-                            money: "재정"
-                          };
-                          return (
-                            <span key={key} className={`${value > 0 ? 'text-green-200' : value < 0 ? 'text-red-200' : 'text-gray-300'}`}>
-                              {labels[key as keyof typeof labels]}: {value > 0 ? '+' : ''}{value}
-                            </span>
-                          );
-                        })}
                       </div>
                     </div>
                   </Button>
@@ -641,24 +702,9 @@ export default function ESGCEOGame() {
                     disabled={showEffect}
                   >
                     <div className="w-full">
-                      <div className="flex items-center justify-center mb-2">
+                      <div className="flex items-center justify-center">
                         <span className="text-center font-bold">{scenario.option_right.text}</span>
                         <ChevronRight className="w-5 h-5 ml-2" />
-                      </div>
-                      <div className="grid grid-cols-4 gap-1 text-xs">
-                        {Object.entries(scenario.option_right.effects).map(([key, value]) => {
-                          const labels = {
-                            environment: "환경",
-                            social: "사회", 
-                            governance: "지배",
-                            money: "재정"
-                          };
-                          return (
-                            <span key={key} className={`${value > 0 ? 'text-green-200' : value < 0 ? 'text-red-200' : 'text-gray-300'}`}>
-                              {labels[key as keyof typeof labels]}: {value > 0 ? '+' : ''}{value}
-                            </span>
-                          );
-                        })}
                       </div>
                     </div>
                   </Button>

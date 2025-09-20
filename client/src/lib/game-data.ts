@@ -1,35 +1,68 @@
-// ESG CEO Game Data - Based on the planning document
+// ESG Representatives and their characteristics
+export const ESG_REPRESENTATIVES = {
+  environment: {
+    id: 'environment',
+    name: '박그린',
+    role: '환경부 장관',
+    emoji: '🌿',
+    image: '🧑‍🔬', // 환경 과학자 이미지
+    description: '지구의 미래를 걱정하는 환경 전문가',
+    color: 'text-green-600',
+    background: 'from-green-700 to-green-900'
+  },
+  social: {
+    id: 'social',
+    name: '김소셜',
+    role: '사회복지위원장',
+    emoji: '👥',
+    image: '👨‍👩‍👧‍👦', // 사회복지사 이미지
+    description: '사회 정의와 평등을 추구하는 복지 전문가',
+    color: 'text-blue-600',
+    background: 'from-blue-700 to-blue-900'
+  },
+  governance: {
+    id: 'governance',
+    name: '이거번',
+    role: '윤리경영위원장',
+    emoji: '⚖️',
+    image: '👨‍💼', // 경영자 이미지
+    description: '투명하고 공정한 경영을 추구하는 전문가',
+    color: 'text-purple-600',
+    background: 'from-purple-700 to-purple-900'
+  },
+  money: {
+    id: 'money',
+    name: '최머니',
+    role: '재무책임자',
+    emoji: '💰',
+    image: '🧑‍💼', // 금융전문가 이미지
+    description: '재정 건전성과 수익성을 관리하는 전문가',
+    color: 'text-yellow-600',
+    background: 'from-yellow-700 to-yellow-900'
+  }
+};
+
+// Game interfaces
 export interface ESGScenario {
   id: string;
   title: string;
   description: string;
-  characterName: string;
-  characterRole: string;
-  characterEmoji: string;
-  category: 'climate' | 'energy' | 'social' | 'governance' | 'crisis';
+  representative: keyof typeof ESG_REPRESENTATIVES;
+  category: 'environment' | 'social' | 'governance' | 'money';
   year: number;
+  characterName?: string;
+  characterRole?: string;
+  characterEmoji?: string;
   
   leftOption: {
-    title: string;
-    description: string;
-    effects: {
-      environment: number;
-      economy: number;
-      social: number;
-      technology: number;
-    };
+    text: string;
+    effects: ScoreEffects;
     consequences?: string;
   };
   
   rightOption: {
-    title: string;
-    description: string;
-    effects: {
-      environment: number;
-      economy: number;
-      social: number;
-      technology: number;
-    };
+    text: string;
+    effects: ScoreEffects;
     consequences?: string;
   };
   
@@ -40,27 +73,46 @@ export interface ESGScenario {
   };
 }
 
+interface ScoreEffects {
+  environment: number;
+  social: number;
+  governance: number;
+  money: number;
+  technology?: number;
+  economy?: number;
+}
+
 // Core ESG Decision Scenarios based on real-world CEO challenges
 export const esgScenarios: ESGScenario[] = [
   {
     id: "carbon_neutrality_2025",
     title: "탄소중립 목표 설정 압박",
-    description: "투자자들과 정부가 2030년 탄소중립 목표를 요구하고 있습니다. 급진적 전환은 비용이 크지만, 늦으면 규제와 투자 철수 위험이 있습니다.",
-    characterName: "이지환 투자담당자",
-    characterRole: "ESG 펀드 매니저",
-    characterEmoji: "💼",
-    category: "climate",
+    description: "2030년 탄소중립 목표를 요구받고 있습니다. 급진적 전환은 비용이 크지만, 늦으면 규제와 투자 철수 위험이 있습니다.",
+    representative: "environment",
+    category: "environment",
     year: 2025,
     leftOption: {
-      title: "2030 탄소중립 선언",
-      description: "공격적인 탄소중립 목표를 설정하고 재생에너지 전환을 시작합니다.",
-      effects: { environment: +15, economy: -10, social: +5, technology: +8 },
+      text: "2030 탄소중립 선언",
+      effects: { 
+        environment: +15, 
+        social: +5, 
+        governance: +5, 
+        money: -10, 
+        economy: -10, 
+        technology: +8 
+      },
       consequences: "단기 비용 증가하지만 ESG 투자 유치와 브랜드 이미지 향상"
     },
     rightOption: {
-      title: "점진적 전환 계획",
-      description: "현실적인 2040년 목표로 설정하여 안정적인 전환을 추진합니다.",
-      effects: { environment: +5, economy: +5, social: 0, technology: +3 },
+      text: "점진적 전환 계획",
+      effects: { 
+        environment: +5, 
+        social: 0, 
+        governance: +2, 
+        money: +5, 
+        economy: +5, 
+        technology: +3 
+      },
       consequences: "안전한 선택이지만 ESG 투자 기회를 놓칠 수 있음"
     },
     educationalData: {
@@ -74,21 +126,34 @@ export const esgScenarios: ESGScenario[] = [
     id: "renewable_energy_investment",
     title: "재생에너지 투자 결정",
     description: "공장 전력을 재생에너지로 전환할지 결정해야 합니다. 초기 비용이 크지만 장기적으로 에너지 비용 절감과 ESG 점수 향상이 예상됩니다.",
+    representative: "environment",
     characterName: "김기술 CTO",
     characterRole: "최고기술책임자",
     characterEmoji: "⚡",
-    category: "energy",
+    category: "environment",
     year: 2026,
     leftOption: {
-      title: "재생에너지 100% 전환",
-      description: "태양광과 풍력 발전으로 모든 공장을 운영합니다.",
-      effects: { environment: +20, economy: -15, social: +3, technology: +10 },
+      text: "재생에너지 100% 전환",
+      effects: { 
+        environment: +20, 
+        social: +3, 
+        governance: +5, 
+        money: -15, 
+        economy: -15, 
+        technology: +10 
+      },
       consequences: "높은 초기 투자 비용이지만 장기적 비용 절감과 탄소 저감"
     },
     rightOption: {
-      title: "기존 전력 유지",
-      description: "현재 전력망을 계속 사용하며 점진적 전환을 검토합니다.",
-      effects: { environment: -5, economy: +10, social: -2, technology: -3 },
+      text: "기존 전력 유지",
+      effects: { 
+        environment: -5, 
+        social: -2, 
+        governance: -3, 
+        money: +10, 
+        economy: +10, 
+        technology: -3 
+      },
       consequences: "단기 이익 보장이지만 미래 에너지 비용 상승 위험"
     },
     educationalData: {
@@ -101,6 +166,7 @@ export const esgScenarios: ESGScenario[] = [
   {
     id: "employee_wellbeing_program",
     title: "직원 복지 프로그램 확대",
+    representative: "social",
     description: "코로나 이후 직원들의 정신건강과 워라밸에 대한 요구가 증가했습니다. 복지 투자는 비용이지만 생산성과 이직률에 큰 영향을 줍니다.",
     characterName: "박인사 CHO",
     characterRole: "최고인사책임자",
@@ -108,15 +174,27 @@ export const esgScenarios: ESGScenario[] = [
     category: "social",
     year: 2025,
     leftOption: {
-      title: "포괄적 복지 확대",
-      description: "정신건강 지원, 육아 지원, 유연근무제를 전면 도입합니다.",
-      effects: { environment: +2, economy: -8, social: +18, technology: +5 },
+      text: "포괄적 복지 확대",
+      effects: { 
+        environment: +2, 
+        social: +18, 
+        governance: +5, 
+        money: -8, 
+        economy: -8, 
+        technology: +5 
+      },
       consequences: "높은 복지 비용이지만 직원 만족도와 생산성 크게 향상"
     },
     rightOption: {
-      title: "현 수준 유지",
-      description: "현재 복지 수준을 유지하며 필수적인 부분만 개선합니다.",
-      effects: { environment: 0, economy: +5, social: -5, technology: 0 },
+      text: "현 수준 유지",
+      effects: { 
+        environment: 0, 
+        social: -5, 
+        governance: -2, 
+        money: +5, 
+        economy: +5, 
+        technology: 0 
+      },
       consequences: "비용 절약이지만 인재 이탈과 생산성 저하 위험"
     },
     educationalData: {
@@ -129,6 +207,7 @@ export const esgScenarios: ESGScenario[] = [
   {
     id: "supply_chain_transparency",
     title: "공급망 투명성 개선",
+    representative: "governance",
     description: "공급업체의 환경과 노동 기준을 강화하라는 요구가 있습니다. 엄격한 기준은 비용 증가를 가져오지만 브랜드 리스크를 줄일 수 있습니다.",
     characterName: "최공급 CPO",
     characterRole: "최고조달책임자",
@@ -136,15 +215,27 @@ export const esgScenarios: ESGScenario[] = [
     category: "governance",
     year: 2026,
     leftOption: {
-      title: "엄격한 ESG 기준 적용",
-      description: "모든 공급업체에 환경·노동 기준을 적용하고 정기 감사를 실시합니다.",
-      effects: { environment: +12, economy: -12, social: +15, technology: +3 },
+      text: "엄격한 ESG 기준 적용",
+      effects: { 
+        environment: +12,
+        social: +15,
+        governance: +8,
+        money: -12,
+        economy: -12,
+        technology: +3 
+      },
       consequences: "공급 비용 상승하지만 브랜드 리스크 대폭 감소"
     },
     rightOption: {
-      title: "기존 공급망 유지",
-      description: "현재 공급업체와의 관계를 유지하며 점진적 개선만 추진합니다.",
-      effects: { environment: -3, economy: +8, social: -8, technology: 0 },
+      text: "기존 공급망 유지",
+      effects: { 
+        environment: -3,
+        social: -8,
+        governance: -5,
+        money: +8,
+        economy: +8,
+        technology: 0
+      },
       consequences: "비용 절약이지만 공급망 리스크와 평판 손상 위험"
     },
     educationalData: {
@@ -157,6 +248,7 @@ export const esgScenarios: ESGScenario[] = [
   {
     id: "ai_automation_decision",
     title: "AI 자동화 도입 딜레마",
+    representative: "social",
     description: "AI 도입으로 효율성은 크게 개선되지만 대량 해고가 불가피합니다. 기술 혁신과 사회적 책임 사이에서 선택해야 합니다.",
     characterName: "정혁신 CIO",
     characterRole: "최고정보책임자",
@@ -164,15 +256,27 @@ export const esgScenarios: ESGScenario[] = [
     category: "social",
     year: 2027,
     leftOption: {
-      title: "AI 전면 도입 + 재교육",
-      description: "AI를 도입하되 직원 재교육 프로그램으로 일자리 전환을 지원합니다.",
-      effects: { environment: +5, economy: +8, social: +5, technology: +20 },
+      text: "AI 전면 도입 + 재교육",
+      effects: { 
+        environment: +5, 
+        social: +5, 
+        governance: +8,
+        money: -10,
+        economy: +8, 
+        technology: +20 
+      },
       consequences: "높은 재교육 비용이지만 혁신과 고용 모두 확보"
     },
     rightOption: {
-      title: "제한적 AI 도입",
-      description: "고용 유지를 위해 AI 도입을 최소화하고 인력 중심 운영을 계속합니다.",
-      effects: { environment: 0, economy: -5, social: +8, technology: -8 },
+      text: "제한적 AI 도입",
+      effects: { 
+        environment: 0, 
+        social: +8, 
+        governance: +2,
+        money: +5,
+        economy: -5, 
+        technology: -8 
+      },
       consequences: "고용 안정하지만 경쟁력 저하로 장기적 위험"
     },
     educationalData: {
@@ -185,22 +289,35 @@ export const esgScenarios: ESGScenario[] = [
   {
     id: "climate_crisis_adaptation",
     title: "기후변화 적응 투자",
+    representative: "environment",
     description: "극한 기후 현상이 빈발하면서 시설 보강과 비즈니스 연속성 계획이 필요합니다. 막대한 투자가 필요하지만 미래 리스크 대응에 필수적입니다.",
     characterName: "한위기 CRO",
     characterRole: "최고리스크책임자",
     characterEmoji: "🌪️",
-    category: "crisis",
+    category: "environment",
     year: 2028,
     leftOption: {
-      title: "포괄적 기후 적응 투자",
-      description: "인프라 강화, 보험 확대, 대체 운영 계획을 포함한 종합 대책을 마련합니다.",
-      effects: { environment: +10, economy: -20, social: +8, technology: +12 },
+      text: "포괄적 기후 적응 투자",
+      effects: { 
+        environment: +10, 
+        social: +8, 
+        governance: +8, 
+        money: -20, 
+        economy: -20, 
+        technology: +12 
+      },
       consequences: "큰 초기 비용이지만 기후 리스크에 대한 강력한 보호막 확보"
     },
     rightOption: {
-      title: "최소한 대응",
-      description: "필수적인 보험만 추가하고 사후 대응 방식을 유지합니다.",
-      effects: { environment: -5, economy: +5, social: -10, technology: -5 },
+      text: "최소한 대응",
+      effects: { 
+        environment: -5, 
+        social: -10, 
+        governance: -5, 
+        money: +5, 
+        economy: +5, 
+        technology: -5 
+      },
       consequences: "비용 절약이지만 기후 재해 시 막대한 손실 위험"
     },
     educationalData: {
@@ -213,22 +330,35 @@ export const esgScenarios: ESGScenario[] = [
   {
     id: "circular_economy_transition",
     title: "순환경제 전환",
+    representative: "environment",
     description: "제품 설계부터 폐기까지 순환경제 모델을 적용하라는 요구가 증가합니다. 전면 전환은 비용이 크지만 자원 효율성과 새로운 수익 모델을 창출할 수 있습니다.",
     characterName: "윤지속 CSO",
     characterRole: "최고지속가능책임자",
     characterEmoji: "♻️",
-    category: "climate",
+    category: "environment",
     year: 2029,
     leftOption: {
-      title: "순환경제 전면 전환",
-      description: "제품 재설계, 재활용 시스템, 서비스형 비즈니스 모델을 도입합니다.",
-      effects: { environment: +25, economy: -10, social: +5, technology: +15 },
+      text: "순환경제 전면 전환",
+      effects: { 
+        environment: +25, 
+        social: +5, 
+        governance: +10, 
+        money: -10, 
+        economy: -10, 
+        technology: +15 
+      },
       consequences: "전환 비용 크지만 장기적 자원 절약과 신규 수익원 창출"
     },
     rightOption: {
-      title: "부분적 개선",
-      description: "포장재 개선과 재활용률 향상 등 점진적 변화만 추진합니다.",
-      effects: { environment: +8, economy: +2, social: +2, technology: +3 },
+      text: "부분적 개선",
+      effects: { 
+        environment: +8, 
+        social: +2, 
+        governance: +2, 
+        money: +2, 
+        economy: +2, 
+        technology: +3 
+      },
       consequences: "안전한 선택이지만 미래 자원 가격 상승에 취약"
     },
     educationalData: {
@@ -241,6 +371,7 @@ export const esgScenarios: ESGScenario[] = [
   {
     id: "esg_reporting_standards",
     title: "ESG 공시 기준 대응",
+    representative: "governance",
     description: "새로운 ESG 공시 기준이 도입되면서 상세한 데이터 수집과 보고가 필요합니다. 투명한 공시는 신뢰도를 높이지만 부담도 큽니다.",
     characterName: "서공시 CFO",
     characterRole: "최고재무책임자",  
@@ -248,15 +379,27 @@ export const esgScenarios: ESGScenario[] = [
     category: "governance",
     year: 2025,
     leftOption: {
-      title: "선제적 ESG 공시",
-      description: "법정 기준을 초과하는 투명하고 상세한 ESG 데이터를 공개합니다.",
-      effects: { environment: +8, economy: -5, social: +10, technology: +5 },
+      text: "선제적 ESG 공시",
+      effects: { 
+        environment: +8, 
+        social: +10, 
+        governance: +15, 
+        money: -5, 
+        economy: -5, 
+        technology: +5 
+      },
       consequences: "공시 비용 증가하지만 투자자 신뢰와 ESG 등급 향상"
     },
     rightOption: {
-      title: "최소 기준 준수",
-      description: "법적 요구사항만 충족하는 수준에서 ESG 정보를 공개합니다.",
-      effects: { environment: +2, economy: +8, social: 0, technology: +2 },
+      text: "최소 기준 준수",
+      effects: { 
+        environment: +2, 
+        social: 0, 
+        governance: +5, 
+        money: +8, 
+        economy: +8, 
+        technology: +2 
+      },
       consequences: "비용 절약이지만 ESG 투자 기회 제한과 투명성 의구심"
     },
     educationalData: {
